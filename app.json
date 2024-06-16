@@ -21,10 +21,20 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "versionCode":2,
+      "package": "com.swastibharat.partners"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "12ab3263-1fec-4e7b-af8a-5ecb67150b50"
+      }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

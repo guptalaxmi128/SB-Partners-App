@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   ActivityIndicator,
+  TextInput
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { Calendar } from "react-native-calendars";
@@ -35,6 +36,11 @@ const durationOptions = [
   { key: "80", value: "80" },
 ];
 
+const serviceTypeItems=[
+  {key:'Private',value:'Private'},
+  {key:'Group',value:'Group'}
+]
+
 const AddTimeSlot = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { id } = route.params;
@@ -47,6 +53,8 @@ const AddTimeSlot = ({ navigation, route }) => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [serviceType,setServiceType]=useState('');
+  const [numberOfPeople, setNumberOfPeople] = useState("");
 
   const markedDates = {
     [selectedDate]: {
@@ -108,6 +116,15 @@ const AddTimeSlot = ({ navigation, route }) => {
     setTimeSlots(slots);
   };
 
+  const handleServiceTypeChange = (value) => {
+    setServiceType(value);
+    if (value === "Private") {
+      setNumberOfPeople("1");
+    } else {
+      setNumberOfPeople("");
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       createTimeSlots();
@@ -123,17 +140,28 @@ const AddTimeSlot = ({ navigation, route }) => {
       setLoading(true);
 
       // Format selected time slots data
+      // const formattedTimeSlots = selectedSlots.map((index) => {
+      //   const slot = timeSlots[index];
+      //   console.log("slot", slot);
+      //   const startTime = formatTime(slot.start);
+      //   const endTime = formatTime(slot.end);
+      //   return `${startTime}-${endTime}`;
+      // });
+
       const formattedTimeSlots = selectedSlots.map((index) => {
         const slot = timeSlots[index];
-        console.log("slot", slot);
         const startTime = formatTime(slot.start);
         const endTime = formatTime(slot.end);
-        return `${startTime}-${endTime}`;
+        return {
+          serviceType,
+          noOfPeople: serviceType === "Private" ? 1 : numberOfPeople,
+          time: `${startTime}-${endTime}`
+        };
       });
 
       const body = {
         date: selectedDate,
-        time: formattedTimeSlots,
+        slotes: formattedTimeSlots,
         id,
       };
 
@@ -220,6 +248,35 @@ const AddTimeSlot = ({ navigation, route }) => {
         <View style={{ paddingHorizontal: 15 }}>
           <View style={{ marginTop: 10 }}>
             <Text style={{ fontFamily: "Poppins", fontSize: 14 }}>
+              Service Type
+            </Text>
+            <SelectList
+              setSelected={handleServiceTypeChange}
+              data={serviceTypeItems}
+              save="value"
+              placeholder="Select Service Type"
+              boxStyles={styles.dropdown}
+              fontFamily="Poppins"
+            />
+          </View>
+
+          {serviceType === "Group" && (
+            <View style={{ marginTop: 10 }}>
+              <Text style={{ fontFamily: "Poppins", fontSize: 14 }}>
+                Number of People
+              </Text>
+              <TextInput
+                   style={styles.timePickerButton}
+                value={numberOfPeople}
+                onChangeText={setNumberOfPeople}
+                placeholder="Enter number of people"
+                keyboardType="numeric"
+              />
+            </View>
+          )}
+         
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ fontFamily: "Poppins", fontSize: 14 }}>
               Start Time
             </Text>
             <TouchableOpacity
@@ -273,6 +330,7 @@ const AddTimeSlot = ({ navigation, route }) => {
               fontFamily="Poppins"
             />
           </View>
+          
 
           {timeSlots.length > 0 && (
             <View style={styles.timeSlotList}>

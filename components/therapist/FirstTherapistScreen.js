@@ -14,7 +14,6 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import CheckBox from "react-native-check-box";
 import { SelectList } from "react-native-dropdown-select-list";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -22,7 +21,7 @@ import Button from "../button/Button";
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import { updateTherapistTerm } from "../../action/auth/auth";
-import Header from "../header/Header";
+
 
 const FirstTherapistScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -34,7 +33,7 @@ const FirstTherapistScreen = ({ navigation }) => {
 
   const validationSchema = Yup.object().shape({
     selected: Yup.string().required("Selection is required"),
-    isChecked: Yup.boolean().oneOf([true], "You must accept the terms"),
+    // isChecked: Yup.boolean().oneOf([true], "You must accept the terms"),
   });
 
   const handleSubmit = async (values) => {
@@ -43,10 +42,10 @@ const FirstTherapistScreen = ({ navigation }) => {
       //   console.log("Form values:", values);
       //   console.log("Providing Yoga Sessions at Home:", isHome);
       const termInfo = {
-        isTherapist: isTherapist,
-        therapistTermAccepted: values.isChecked,
+        therapistTermAccepted: isTherapist,
+       
       };
-      //   console.log(termInfo);
+
       setLoading(true);
       const res = await dispatch(updateTherapistTerm(termInfo));
       console.log(res);
@@ -73,6 +72,10 @@ const FirstTherapistScreen = ({ navigation }) => {
     }
   };
 
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
   useEffect(() => {
     const handleBackPress = () => {
       if (navigation.isFocused()) {
@@ -92,7 +95,7 @@ const FirstTherapistScreen = ({ navigation }) => {
 
   return (
     <Formik
-      initialValues={{ selected: "", isChecked: false }}
+      initialValues={{ selected: "" }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -108,20 +111,32 @@ const FirstTherapistScreen = ({ navigation }) => {
         <View style={styles.container}>
           <StatusBar translucent backgroundColor="transparent" />
 
-        
           <ScrollView
             contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20 }}
           >
             <View style={{ flex: 1 }}>
-            <View style={{paddingBottom:20}}>
-                <Text style={styles.headingText}>Become a Yoga Therapist</Text>
-                <Text style={styles.text1}>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  onPress={handleGoBack}
+                  style={{ marginTop: 5, paddingVertical: 20 }}
+                >
+                  <Image
+                    source={require("../../assets/back.png")}
+                    style={styles.back}
+                  />
+                </TouchableOpacity>
+                <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
+                  <Text style={styles.headingText}>
+                  Become a Yoga Therapist
+                  </Text>
+                  <Text style={styles.text1}>
                   Offer therapy sessions to the specific need
-                </Text>
+                  </Text>
+                </View>
               </View>
               <View style={styles.imageContainer}>
                 <Image
-                  source={require("../../assets/get-screen/therapy.jpeg")}
+                 source={require("../../assets/get-screen/therapy.jpeg")}
                   style={styles.image}
                   resizeMode="cover"
                 />
@@ -136,12 +151,17 @@ const FirstTherapistScreen = ({ navigation }) => {
                   }}
                 >
                   Welcome to{" "}
-                  <Text style={{ fontFamily: "PoppinsSemiBold",color:'#000' }}>
+                  <Text
+                    style={{ fontFamily: "PoppinsSemiBold", color: "#000" }}
+                  >
                     Swasti Bharat Partners!
                   </Text>
                   As a{" "}
-                  <Text style={{ fontFamily: "PoppinsSemiBold",color:'#000' }}>
-                    Yoga Therapist
+                  <Text
+                    style={{ fontFamily: "PoppinsSemiBold", color: "#000" }}
+                  >
+                          Yoga Therapist
+
                   </Text>{" "}
                   , you can offer tailored therapy sessions both at home and in
                   your based therapy sessions tailored to the specific needs of
@@ -151,11 +171,12 @@ const FirstTherapistScreen = ({ navigation }) => {
                   and location to make it easy for clients to reach you. Join us
                   today and make a meaningful impact on your community's health
                   and well-being.
+
                 </Text>
               </View>
               <View>
                 <Text style={styles.headingText1}>
-                  Are you providing Yoga Therapy Services ?
+                Are you providing Yoga Therapy Services ?
                 </Text>
                 <SelectList
                   setSelected={(val) => setFieldValue("selected", val)}
@@ -168,33 +189,26 @@ const FirstTherapistScreen = ({ navigation }) => {
                   <Text style={styles.errorText}>{errors.selected}</Text>
                 )}
               </View>
+          
               <View style={styles.termsContainer}>
-                <CheckBox
-                  isChecked={values.isChecked}
-                  onClick={() => setFieldValue("isChecked", !values.isChecked)}
-                  style={styles.checkbox}
-                />
-                  <View style={styles.textContainer}>
                 <Text style={styles.termsText}>
-                  I accept the app's{" "}
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("TermConditions")}
-                  >
-                    <Text style={styles.linkText}>Terms of Service</Text>
-                  </TouchableOpacity>{" "}
-                  and{" "}
+                  By clicking next, you accept the app's{" "}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("TermConditions")}
+                >
+                  <Text style={styles.linkText}>Terms of Service</Text>
+                </TouchableOpacity>
+                <View style={styles.newLineContainer}>
+                  <Text style={styles.termsText}> and </Text>
                   <TouchableOpacity
                     onPress={() => navigation.navigate("PrivacyPolicy")}
                   >
                     <Text style={styles.linkText}>Privacy Policy</Text>
                   </TouchableOpacity>
-                  .
-                </Text>
+                  <Text style={styles.termsText}>.</Text>
                 </View>
               </View>
-              {errors.isChecked && touched.isChecked && (
-                <Text style={styles.errorText}>{errors.isChecked}</Text>
-              )}
 
               <Button
                 title={
@@ -222,7 +236,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingVertical: 30,
+    paddingTop: 30,
+  },
+  back: {
+    width: 24,
+    height: 24,
   },
   imageContainer: {
     width: wp(90),
@@ -230,7 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#dcdcdc",
     alignSelf: "center",
-    marginBottom: 20,
+    marginVertical: 20,
   },
   image: { width: "100%", height: "100%", borderRadius: 10 },
   container1: {
@@ -245,36 +263,35 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     fontFamily: "PoppinsSemiBold",
     lineHeight: 28,
+    marginBottom: 8,
   },
   text1: {
-    fontSize: hp(1.5),
+    fontSize: hp(1.8),
     fontFamily: "Poppins",
     lineHeight: 20,
     fontWeight: "500",
   },
-  checkbox: {
-    marginRight: 5,
-  },
   termsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width:wp('100%'),
-    paddingTop:10,
-  },
-  textContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    flex: 1,
+    width: wp("100%"),
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingVertical: 10,
   },
   termsText: {
-    color: '#000', // Ensure the text color is set
-    fontSize:13
+    fontFamily: "Poppins",
+    fontWeight: "400",
+    fontSize: 13,
+    textAlign: "justify",
   },
   linkText: {
     color: "rgba(107, 78, 255, 1)",
-    textDecorationLine: 'underline',
-    fontSize:13
+    fontFamily: "Poppins",
+    fontWeight: "400",
+    fontSize: 13,
+  },
+  newLineContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   errorText: {
     fontFamily: "Poppins",

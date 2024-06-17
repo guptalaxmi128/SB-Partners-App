@@ -14,8 +14,6 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { FontAwesome } from "@expo/vector-icons";
-import CheckBox from "react-native-check-box";
 import { SelectList } from "react-native-dropdown-select-list";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -34,7 +32,7 @@ const FirstHTutorScreen = ({ navigation }) => {
 
   const validationSchema = Yup.object().shape({
     selected: Yup.string().required("Selection is required"),
-    isChecked: Yup.boolean().oneOf([true], "You must accept the terms"),
+    // isChecked: Yup.boolean().oneOf([true], "You must accept the terms"),
   });
 
   const handleSubmit = async (values) => {
@@ -43,8 +41,8 @@ const FirstHTutorScreen = ({ navigation }) => {
       //   console.log("Form values:", values);
       //   console.log("Providing Yoga Sessions at Home:", isHome);
       const termInfo = {
-        isHomeTutor: isHome,
-        homeTutorTermAccepted: values.isChecked,
+        homeTutorTermAccepted: isHome,
+        // homeTutorTermAccepted: values.isChecked,
       };
       //   console.log(termInfo);
       setLoading(true);
@@ -96,7 +94,7 @@ const FirstHTutorScreen = ({ navigation }) => {
 
   return (
     <Formik
-      initialValues={{ selected: "", isChecked: false }}
+      initialValues={{ selected: "" }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >

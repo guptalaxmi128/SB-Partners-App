@@ -191,7 +191,7 @@ const Home = ({ navigation }) => {
     const fetchData = async () => {
       try {
         const res = await dispatch(getInstructor());
-        console.log(res.data);
+        // console.log(res.data);
         setQualification(res.data.qualifications);
         setTermsAndConditions(res.data.homeTutorTermAccepted);
         setTherapistTerm(res.data.therapistTermAccepted);
@@ -203,14 +203,15 @@ const Home = ({ navigation }) => {
         if (msg === "Please complete your profile!") {
           console.log("Navigating to ProfileOverview");
           navigation.navigate("ProfileOverview");
-        } else {
-          Toast.show({
-            type: "error",
-            text1: msg || "An error occurred. Please try again.",
-            visibilityTime: 2000,
-            autoHide: true,
-          });
-        }
+        } 
+        // else {
+        //   Toast.show({
+        //     type: "error",
+        //     text1: msg || "An error occurred. Please try again.",
+        //     visibilityTime: 2000,
+        //     autoHide: true,
+        //   });
+        // }
       }
     };
 
@@ -230,14 +231,15 @@ const Home = ({ navigation }) => {
         if (msg === "Please complete your profile!") {
           console.log("Navigating to ProfileOverview");
           navigation.navigate("ProfileOverview");
-        } else {
-          Toast.show({
-            type: "error",
-            text1: msg || "An error occurred. Please try again.",
-            visibilityTime: 2000,
-            autoHide: true,
-          });
-        }
+        } 
+        // else {
+        //   Toast.show({
+        //     type: "error",
+        //     text1: msg || "An error occurred. Please try again.",
+        //     visibilityTime: 2000,
+        //     autoHide: true,
+        //   });
+        // }
       }
     };
 
@@ -278,24 +280,61 @@ const Home = ({ navigation }) => {
         // console.log(res)
         setTherapist(res.data);
 
-        const tutorRes = await dispatch(getTutor());
-        setTutor(tutorRes.data);
+       
       } catch (error) {
         console.error("Error fetching data:", error);
-        // const msg = error.response.data?.message;
-        // Toast.show({
-        //   type: "error",
-        //   text1: msg,
-        //   visibilityTime: 2000,
-        //   autoHide: true,
-        // });
-      } finally {
+          const msg = error.response.data.message;
+        if (msg === "Please complete your profile!") {
+          console.log("Navigating to ProfileOverview");
+          navigation.navigate("ProfileOverview");
+        }
+        //  else {
+        //   Toast.show({
+        //     type: "error",
+        //     text1: msg || "An error occurred. Please try again.",
+        //     visibilityTime: 2000,
+        //     autoHide: true,
+        //   });
+        // }
+      }finally {
         setLoading(false);
       }
     };
 
     fetchData();
   }, [dispatch]);
+
+    useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await dispatch(getTutor());
+        // console.log(res)
+        setTutor(res.data);  
+      } catch (error) {
+        console.error("Error fetching data:", error);
+           const msg = error.response.data.message;
+        if (msg === "Please complete your profile!") {
+          console.log("Navigating to ProfileOverview");
+          navigation.navigate("ProfileOverview");
+        } 
+        // else {
+        //   Toast.show({
+        //     type: "error",
+        //     text1: msg || "An error occurred. Please try again.",
+        //     visibilityTime: 2000,
+        //     autoHide: true,
+        //   });
+        // }
+      }finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
+  // console.log(termsAndConditions)
+  // console.log(tutor.timeSlotes)
 
   // console.log(user);
   return (
@@ -374,41 +413,47 @@ const Home = ({ navigation }) => {
                     },
                   ]}
                   onPress={() => {
+                    const hasQualificationIn = (type) => {
+                      return qualification.some(
+                        (q) => q.qualificationIn === type
+                      );
+                    };
+
                     if (
-                      (card.content === "Yoga Classes at Home" ||
-                        card.content === "Therapist") &&
-                      qualification.length === 0
+                      therapistTerm === true &&
+                      card.content === "Therapist" &&
+                      therapist.length === 0
                     ) {
-                      navigation.navigate("AddQualification");
+                      navigation.navigate("Therapist");
+                    } else if (
+                      termsAndConditions === true &&
+                      card.content === "Yoga Classes at Home" &&
+                      tutor.length === 0
+                    ) {
+                      navigation.navigate("HomeTutor");
                     } else {
-                      if (
-                        therapistTerm === true &&
-                        card.content === "Therapist" &&
-                        therapist.length === 0
-                      ) {
-                        navigation.navigate("Therapist");
-                      } else if (
-                        termsAndConditions === true &&
-                        card.content === "Yoga Classes at Home" &&
-                        tutor.length === 0
-                      ) {
-                        navigation.navigate("HomeTutor");
-                      } else {
-                        if (card.content === "Yoga Classes at Home") {
+                      if (card.content === "Yoga Classes at Home") {
+                        if (hasQualificationIn("HomeTutor")) {
                           navigation.navigate(
                             termsAndConditions
                               ? "AllHomeTutor"
                               : card.navigateTo
                           );
-                        } else if (card.content === "Therapist") {
+                        } else {
+                          navigation.navigate("AddQualification");
+                        }
+                      } else if (card.content === "Therapist") {
+                        if (hasQualificationIn("Therapist")) {
                           navigation.navigate(
                             therapistTerm ? "AllTherapist" : card.navigateTo
                           );
-                        } else if (card.navigateTo === "YogaStudio") {
-                          handlePresentModal();
                         } else {
-                          navigation.navigate(card.navigateTo);
+                          navigation.navigate("AddQualification");
                         }
+                      } else if (card.navigateTo === "YogaStudio") {
+                        handlePresentModal();
+                      } else {
+                        navigation.navigate(card.navigateTo);
                       }
                     }
                   }}

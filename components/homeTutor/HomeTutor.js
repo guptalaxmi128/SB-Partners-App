@@ -16,6 +16,7 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import MapView, { Marker, Circle } from "react-native-maps";
 import Toast from "react-native-toast-message";
 import MultiSelect from "react-native-multiple-select";
+import CheckBox from "react-native-check-box";
 import { GOOGLE_MAPS_APIKEY } from "../../apiKey/index";
 import Header from "../header/Header";
 import { Formik } from "formik";
@@ -199,7 +200,9 @@ const HomeTutor = ({ navigation }) => {
       1,
       "At least one specialisation is required"
     ),
-    services: Yup.array().min(1, "At least one service offer is required"),
+    isPrivateSO: Yup.boolean(),
+    isGroupSO: Yup.boolean(),
+    // services: Yup.array().min(1, "At least one service offer is required"),
     language: Yup.array().min(1, "At least one language is required"),
     yogaFor:Yup.array().min(1, "At least one select field is required"),
   });
@@ -297,49 +300,36 @@ const HomeTutor = ({ navigation }) => {
           <Text style={styles.error}>{errors.specialisations}</Text>
         )}
 
-        <Text style={[styles.label, { marginTop: 10 }]}>
+     
+       
+        <View style={{ paddingVertical: 10 }}>
+        <Text style={styles.label}>
           Service Offered <Text style={{ color: "red" }}>*</Text>
         </Text>
-        <MultiSelect
-          hideTags
-          items={serviceItems}
-          uniqueKey="id"
-          onSelectedItemsChange={(val) => {
-            setSelectedServices(val);
-            setFieldValue("services", val);
-          }}
-          selectedItems={selectedServices}
-          selectText="Pick Services"
-          searchInputPlaceholderText="Search Services..."
-          altFontFamily="Poppins"
-          tagRemoveIconColor="#CCC"
-          tagBorderColor="#CCC"
-          tagTextColor="#CCC"
-          selectedItemTextColor="#CCC"
-          selectedItemIconColor="#CCC"
-          itemTextColor="#000"
-          displayKey="name"
-          searchInputStyle={{ color: "#CCC" }}
-          submitButtonColor="#CCC"
-          submitButtonText="Submit"
-          styleInputGroup={{
-            padding: 8,
-          }}
-          styleDropdownMenu={{ columnGap: 8 }}
-          styleMainWrapper={{
-            borderWidth: 1,
-            borderColor: "gray",
-            borderRadius: 10,
-            paddingHorizontal: 10,
-            // paddingTop: 10,
-          }}
-        />
-        {touched.services && errors.services && (
-          <Text style={styles.error}>{errors.services}</Text>
-        )}
+              <View style={{ flexDirection: "row" }}>
+                <View style={[styles.switchContainer, { marginRight: 20 }]}>
+                  <CheckBox
+                    isChecked={values.isPrivateSO}
+                    onClick={() => setFieldValue("isPrivateSO", !values.isPrivateSO)}
+                   
+                  />
+                  <Text style={[styles.label,{marginLeft:5}]}>Individual </Text>
+                </View>
+                <View style={styles.switchContainer}>
+                  <CheckBox
+                    isChecked={values.isGroupSO}
+                    onClick={() =>
+                      setFieldValue("isGroupSO", !values.isGroupSO)
+                    }
+                   
+                  />
+                  <Text style={[styles.label,{marginLeft:5}]}>Group</Text>
+                </View>
+              </View>
+            </View>
 
         {/* Conditional rendering of price input fields */}
-        {selectedServices.includes("2") && ( // '2' for 'Private Session'
+        {values.isPrivateSO && ( // '2' for 'Private Session'
           <>
             <View style={{ marginTop: 10 }}>
               <Input
@@ -369,7 +359,7 @@ const HomeTutor = ({ navigation }) => {
             />
           </>
         )}
-        {selectedServices.includes("1") && ( // '1' for 'Group Classes'
+        {values.isGroupSO && ( // '1' for 'Group Classes'
           <>
             {/* <View style={{marginTop:10}}> */}
             <Input
@@ -617,14 +607,16 @@ const HomeTutor = ({ navigation }) => {
               certification: certification,
               bio: bio,
               specialisations: selectedSpecialisations,
-              services: selectedServices,
+              // services: selectedServices,
               pricePerIndividualClass: "",
               pricePerMonthlyIndividualClass: "",
               pricePerGroupClass: "",
               pricePerMonthlyGroupClass: "",
               language: selectedLanguage,
               yogaFor:yogaFor,
-              tutorName:tutorName
+              tutorName:tutorName,
+              isPrivateSO: false,
+              isGroupSO: false,
             }}
             validationSchema={
               step === 1 ? stepOneValidationSchema : stepTwoValidationSchema
@@ -632,14 +624,20 @@ const HomeTutor = ({ navigation }) => {
             onSubmit={(values, { setSubmitting }) => {
               if (step === 1) {
                 // Submit Step 1 data
+                if (!values.isPrivateSO && !values.isGroupSO) {
+        Toast.show({
+          type: "error",
+          text1: "Please select at least one service offered.",
+          visibilityTime: 2000,
+          autoHide: true,
+        });
+        return;
+      }
                 const specialisations = values.specialisations.map(
                   (id) => specialisationIdToName[id]
                 );
 
-                const serviceOffered = values.services.map(
-                  (id) => serviceIdToName[id]
-                );
-
+             
                 const languages = values.language.map(
                   (id) => languageIdToName[id]
                 );
@@ -650,7 +648,8 @@ const HomeTutor = ({ navigation }) => {
                 const tutorData = {
                   instructorBio: values.bio,
                   language: languages,
-                  serviceOffered,
+                  isPrivateSO:values.isPrivateSO,
+                  isGroupSO:values.isGroupSO,
                   specilization: specialisations,
                   yogaFor:yogaFor,
                   homeTutorName:values.tutorName
@@ -691,7 +690,13 @@ const HomeTutor = ({ navigation }) => {
                   .then((response) => {
                     console.log(response);
                     setTutorId(response.data.homeTutorId); // assuming response.data.id is the new tutor's ID
-                    setStep(2); // Move to step 2
+                    Toast.show({
+                      type: "success",
+                      text1: res.message,
+                      visibilityTime: 2000,
+                      autoHide: true,
+                    });
+                    setStep(2); 
                     setSubmitting(false);
                   })
                   .catch((error) => {
@@ -871,6 +876,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
 });
 

@@ -8,7 +8,12 @@ import {
   StatusBar,
   Alert,
   ActivityIndicator,
+  BackHandler
 } from "react-native";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import Header from "../header/Header";
@@ -85,6 +90,24 @@ const QualificationDetails = ({ navigation,route }) => {
     );
   };
 
+  
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -109,6 +132,7 @@ const QualificationDetails = ({ navigation,route }) => {
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
+                  width:wp(10)
                 }}
               >
                 <TouchableOpacity
@@ -180,8 +204,10 @@ const styles = StyleSheet.create({
   },
 
   historyText: {
-    fontSize: 18,
+    fontSize: 14,
     fontFamily: "Poppins",
+    width:wp(72),
+    // textAlign:'justify'
   },
   dateTimeContainer: {
     flexDirection: "row",

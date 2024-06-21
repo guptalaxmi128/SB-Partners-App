@@ -6,6 +6,7 @@ import {
   UPDATE_INSTRUCTOR,
   UPDATE_TUTOR_TERM,
   UPDATE_THERAPIST_TERM,
+  UPDATE_YS_TERM,
 } from "../../constants/actionTypes";
 
 const initialState = {
@@ -29,6 +30,7 @@ const authReducer = (state = initialState, action) => {
     case UPDATE_INSTRUCTOR:
       case UPDATE_TUTOR_TERM:
         case UPDATE_THERAPIST_TERM:
+          case UPDATE_YS_TERM:
       return {
         ...state,
         success: action.payload,

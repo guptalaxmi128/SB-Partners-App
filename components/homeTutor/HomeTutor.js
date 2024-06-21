@@ -870,7 +870,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   progressBarActive: {
-    backgroundColor: "rgba(102, 42, 178, 1)",
+    backgroundColor: "#5F33E1",
   },
   loadingContainer: {
     flex: 1,

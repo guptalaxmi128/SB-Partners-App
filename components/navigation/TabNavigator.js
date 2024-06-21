@@ -6,11 +6,17 @@ import Class from "../tabComponent/Class";
 import Cart from "../tabComponent/Cart";
 import Profile from "../tabComponent/Profile";
 import HomeIcon from "../../assets/nav-icons/home.png";
-import SnagIcon from "../../assets/nav-icons/snaglist.png";
+import HomeActive from "../../assets/nav-icons/homeActive.png";
+import SnagIcon from "../../assets/nav-icons/booking.png";
+import SnagActive from "../../assets/nav-icons/bookingActive.png";
 
-import CartIcon from "../../assets/nav-icons/cart.png";
+import CartIcon from "../../assets/nav-icons/notification.png";
+import CartActive from "../../assets/nav-icons/notificationActive.png";
 import UserIcon from "../../assets/nav-icons/user.png";
+import UserActive from "../../assets/nav-icons/profileActive.png";
 import LiveClasses from "../liveClasses/LiveClasses";
+import MainBooking from "../booking/MainBooking";
+import Notification from "../notification/Notification";
 
 
 const Tab = createBottomTabNavigator();
@@ -21,14 +27,17 @@ const TabNavigator = () => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: "#e08a44",
+        tabBarActiveTintColor: "#5F33E1",
+        tabBarInactiveTintColor:"#5F33E1",
         tabBarStyle: {
-          height: 65,
+          height: 66,
           flexDirection: "row",
           alignItems: "center",
           width: "100%",
           elevation: 10,
           backgroundColor: "#ffffff",
+          borderTopLeftRadius:25,
+          borderTopRightRadius:25
         },
         
       }}
@@ -43,11 +52,11 @@ const TabNavigator = () => {
 
           tabBarIcon: ({ focused }) => (
             <Image
-              source={focused ? HomeIcon : HomeIcon}
+              source={focused ? HomeActive : HomeIcon}
               style={{
-                width: 25,
-                height: 25,
-                marginTop: 28,
+                width: 26,
+                height: 26,
+                marginTop: 26,
                 // marginRight:25,
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -58,20 +67,22 @@ const TabNavigator = () => {
       />
 
       <Tab.Screen
-        name="Class"
-        component={Class}
+        // name="Class"
+        // component={Class}
+        name="Booking"
+        component={MainBooking}
         options={{
           headerShown: false,
           tabBarLabelStyle: { marginTop: 28,fontSize: 12  },
-          tabBarLabel: "Class",
+          tabBarLabel: "Booking",
 
           tabBarIcon: ({ focused }) => (
             <Image
-              source={focused ? SnagIcon : SnagIcon}
+              source={focused ? SnagActive : SnagIcon}
               style={{
-                width: 25,
-                height: 25,
-                marginTop: 28,
+                width: 26,
+                height: 26,
+                marginTop: 26,
                 // marginRight:25,
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -82,20 +93,21 @@ const TabNavigator = () => {
       />
 
       <Tab.Screen
-        name="Cart"
-        component={LiveClasses}
+        name="Notification"
+        // component={LiveClasses}
+        component={Notification}
         options={{
           headerShown: false,
           tabBarLabelStyle: { marginTop: 28,fontSize: 12  },
-          tabBarLabel: "Cart",
+          tabBarLabel: "Notification",
 
           tabBarIcon: ({ focused }) => (
             <Image
-              source={focused ? CartIcon : CartIcon}
+              source={focused ? CartActive : CartIcon}
               style={{
                 width: 25,
-                height: 25,
-                marginTop: 28,
+                height: 26,
+                marginTop: 26,
                 // marginRight:25,
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -115,11 +127,11 @@ const TabNavigator = () => {
 
           tabBarIcon: ({ focused }) => (
             <Image
-              source={focused ? UserIcon : UserIcon}
+              source={focused ? UserActive : UserIcon}
               style={{
-                width: 25,
-                height: 25,
-                marginTop: 28,
+                width: 26,
+                height: 26,
+                marginTop: 26,
                 // marginRight:25,
                 flexDirection: "row",
                 justifyContent: "space-between",

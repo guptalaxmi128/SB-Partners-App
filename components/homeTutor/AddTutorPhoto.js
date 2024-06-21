@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Text,
   View,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   FlatList,
   StatusBar,
+  BackHandler
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -59,10 +60,11 @@ const AddTutorPhoto = ({ route, navigation }) => {
       if (res && res.success) {
         Toast.show({
           type: "success",
-          text1: res.data.message,
+          text1: res.message,
           visibilityTime: 2000,
           autoHide: true,
         });
+        navigation.navigate("Home");
       } else {
         console.error("Unexpected response:", res);
       }
@@ -79,6 +81,22 @@ const AddTutorPhoto = ({ route, navigation }) => {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        navigation.goBack();
+        return true;
+      }
+      return false;
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
 
   const pickImage = async (setFieldValue) => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -106,7 +124,7 @@ const AddTutorPhoto = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header title={"Add Photos"} icon={require("../../assets/back.png")} />
       </View>
       <ScrollView

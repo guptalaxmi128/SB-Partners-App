@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   ActivityIndicator,
-  TextInput
+  TextInput,
+  BackHandler
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { Calendar } from "react-native-calendars";
@@ -55,6 +56,22 @@ const AddTimeSlot = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [serviceType,setServiceType]=useState('');
   const [numberOfPeople, setNumberOfPeople] = useState("");
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        navigation.goBack();
+        return true;
+      }
+      return false;
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
 
   const markedDates = {
     [selectedDate]: {
@@ -227,7 +244,7 @@ const AddTimeSlot = ({ navigation, route }) => {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header
           title={"Add Time Slot"}
           icon={require("../../assets/back.png")}

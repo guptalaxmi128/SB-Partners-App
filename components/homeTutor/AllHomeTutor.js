@@ -12,10 +12,23 @@ import {
   FlatList,
   Alert,
 } from "react-native";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
-import { deleteHomeTutor, getTutor, publishHomeTutor, submitHomeTutor } from "../../action/homeTutor/homeTutor";
-import CustomHeader from "../CustomHeader/CustomHeader"
+import {
+  deleteHomeTutor,
+  getTutor,
+  publishHomeTutor,
+  submitHomeTutor,
+} from "../../action/homeTutor/homeTutor";
+import CustomHeader from "../CustomHeader/CustomHeader";
+import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
+import LinearGradient from "expo-linear-gradient";
+
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 const AllHomeTutor = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -38,9 +51,11 @@ const AllHomeTutor = ({ navigation }) => {
     };
   }, [navigation]);
 
-  const handlePublishPress = async (id,isPublish) => {
+  const handlePublishPress = async (id, isPublish) => {
     try {
-      const res = await dispatch(publishHomeTutor({id,isPublish: isPublish}));
+      const res = await dispatch(
+        publishHomeTutor({ id, isPublish: isPublish })
+      );
       if (res.success) {
         Toast.show({
           type: "success",
@@ -61,7 +76,7 @@ const AllHomeTutor = ({ navigation }) => {
     }
   };
 
-  const showPublishAlert = (id,isPublish) => {
+  const showPublishAlert = (id, isPublish) => {
     Alert.alert(
       "Confirm for Publish",
       "Are you sure you want to send this item for publish?",
@@ -73,7 +88,7 @@ const AllHomeTutor = ({ navigation }) => {
         },
         {
           text: "Send",
-          onPress: () => handlePublishPress(id,isPublish),
+          onPress: () => handlePublishPress(id, isPublish),
         },
       ],
       { cancelable: false }
@@ -169,7 +184,7 @@ const AllHomeTutor = ({ navigation }) => {
       try {
         setLoading(true);
         const res = await dispatch(getTutor());
-        // console.log(res)
+        console.log(res.data[0].images);
         setData(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -195,8 +210,8 @@ const AllHomeTutor = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
-      <CustomHeader
+      <View style={{ paddingTop: 20 }}>
+        <CustomHeader
           title="All Home Tutor"
           icon={require("../../assets/back.png")}
           buttonText="Add New"
@@ -204,65 +219,89 @@ const AllHomeTutor = ({ navigation }) => {
         />
       </View>
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+        <View style={{ marginHorizontal: 20, marginVertical: 10 }}>
+          <View style={styles.cardContainer1}>
+            <ShimmerPlaceholder
+              style={[styles.tutorImage, { marginRight: 10 }]}
+            />
+            <View style={styles.rightContainer}>
+              <ShimmerPlaceholder
+                style={[styles.text, { marginVertical: 10 }]}
+              />
+              <ShimmerPlaceholder style={styles.text1} />
+              <ShimmerPlaceholder
+                style={[styles.text1, { marginVertical: 10 }]}
+              />
+            </View>
+          </View>
         </View>
       ) : (
         <ScrollView>
-          {data.map((tutor,index) => (
-            <View style={styles.cardContainer} key={index}>
-              <TouchableOpacity
-                style={styles.deleteButtonContainer}
-                onPress={() => showAlert(tutor.id)}
-              >
-                <Image
-                  source={require("../../assets/delete.png")}
-                  style={styles.deleteButtonIcon}
-                />
-              </TouchableOpacity>
-              <View style={styles.leftContainer}>
-                <Image
-                  source={require("../../assets/get-screen/tutor1.jpg")}
-                  style={styles.tutorImage}
-                />
-              </View>
-              <View style={styles.rightContainer}>
-                <Text style={styles.dateText}>Services Offered </Text>
-                <View style={{ paddingVertical: 5 }}>
-                  <FlatList
-                    data={tutor.serviceOffered}
-                    renderItem={({ item }) => (
-                      <View style={styles.timeSlotContainer}>
-                        <Text style={styles.timeSlotText}>{item}</Text>
-                      </View>
-                    )}
-                    numColumns={2}
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={styles.timeSlotList}
+          {data.map((tutor, index) => {
+            const tutorImage =
+              tutor.images && tutor.images.length > 0
+                ? tutor.images[0].path
+                : null;
+            return (
+              <View style={styles.cardContainer} key={index}>
+                <TouchableOpacity
+                  style={styles.deleteButtonContainer}
+                  onPress={() => showAlert(tutor.id)}
+                >
+                  <Image
+                    source={require("../../assets/delete.png")}
+                    style={styles.deleteButtonIcon}
+                  />
+                </TouchableOpacity>
+                <View style={styles.leftContainer}>
+                  <Image
+                    source={
+                      tutorImage
+                        ? { uri: tutorImage }
+                        : require("../../assets/get-screen/tutor1.jpg")
+                    }
+                    style={styles.tutorImage}
                   />
                 </View>
-                <View style={{flexDirection:'row'}}>
-                <TouchableOpacity style={{marginRight:10}}
-                  onPress={() => showSubmitAlert(tutor.id)}
-                >
-                  <Text style={styles.detailsButton}>Submit Home Tutor</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={{marginRight:10}}
-                  onPress={() => showPublishAlert(tutor.id,true)}
-                >
-                  <Text style={styles.detailsButton}>{data.isPublish ? "Published" :"Publish"}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleHomeTutorPress(tutor.id)}
-                >
-                  <Text style={styles.detailsButton}>View Details</Text>
-                </TouchableOpacity>
+                <View style={styles.rightContainer}>
+                  <Text style={styles.dateText}>Services Offered </Text>
+                  <View style={{ paddingVertical: 5 }}>
+                    <View style={styles.timeSlotContainer}>
+                      <Text style={styles.timeSlotText}>
+                        {(tutor.isGroupSO ? "Group" : "") +
+                          (tutor.isGroupSO && tutor.isPrivateSO ? " & " : "") +
+                          (tutor.isPrivateSO ? "Individual" : "")}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity
+                      style={{ marginRight: 10 }}
+                      onPress={() => showSubmitAlert(tutor.id)}
+                    >
+                      <Text style={styles.detailsButton}>
+                        Submit Home Tutor
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={{ marginRight: 10 }}
+                      onPress={() => showPublishAlert(tutor.id, true)}
+                    >
+                      <Text style={styles.detailsButton}>
+                        {data.isPublish ? "Published" : "Publish"}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleHomeTutorPress(tutor.id)}
+                    >
+                      <Text style={styles.detailsButton}>View Details</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-               
               </View>
-            </View>
-          ))}
+            );
+          })}
         </ScrollView>
       )}
     </View>
@@ -317,7 +356,7 @@ const styles = StyleSheet.create({
   },
   detailsButton: {
     fontSize: 10,
-    color: "#1E90FF",
+    color: "#5F33E1",
     fontFamily: "Poppins",
     marginTop: 10,
   },
@@ -334,7 +373,7 @@ const styles = StyleSheet.create({
   },
   tutorImage: {
     width: 100,
-    height: 100,
+    height: 110,
     borderRadius: 10,
   },
   timeSlotContainer: {
@@ -362,6 +401,27 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     resizeMode: "contain",
+  },
+  text1: {
+    fontFamily: "Poppins",
+    fontSize: 11,
+    lineHeight: 19,
+    fontWeight: "400",
+    color: "#fff",
+  },
+  tutorImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 6,
+  },
+  cardContainer1: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 10,
+    marginTop: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
 });
 

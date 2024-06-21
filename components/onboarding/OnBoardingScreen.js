@@ -143,25 +143,25 @@ export default function OnBoardingScreen({ navigation }) {
           {
             backgroundColor: "#fff2cd",
             image: renderImage(require("../../assets/bording/onboarding2.png")),
-            title: "Today, investigate your new talent!",
+            title: "Welcome to Swasti Bharat Partners!",
             subtitle:
-              "According to your needs, we provide a variety of learning options.",
+              "Join our yoga community. List your services, connect with clients, and grow your practice.",
           },
           {
             backgroundColor: "#f2f9ca",
             image: renderImage(require("../../assets/bording/onboarding1.png")),
-            title: "Today, investigate your new talent!",
+            title: "Set Up Your Profile",
             subtitle:
-              "According to your needs, we provide a variety of learning options.",
+              "Add your details, set availability, and list services. Stand out with clear, quality images.",
           },
           {
             backgroundColor: "#fce1cf",
             image: 
               renderImage(require("../../assets/bording/onboarding3.png")),
             
-            title: "Today, investigate your new talent!",
+            title: "Manage Bookings Easily",
             subtitle:
-              "According to your needs, we provide a variety of learning options.",
+              "Receive and manage bookings through the app. Secure payments and easy communication await.",
           },
         ]}
       />
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   textHeading: {
     fontSize: hp(3),
-    lineHeight: 32,
+    lineHeight: 28,
     textAlign: "center",
     fontWeight: "bold",
     fontFamily: "Poppins",

@@ -160,7 +160,7 @@ const EditContactDetails = ({ route ,navigation }) => {
       <StatusBar translucent backgroundColor="transparent" />
       <View style={{ paddingTop: 20 }}>
         <Header
-          title={"List Yoga Studio"}
+          title={"Edit Contact Details"}
           icon={require("../../assets/back.png")}
         />
       </View>

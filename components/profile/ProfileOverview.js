@@ -59,7 +59,7 @@ const ProfileOverview = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header title={"My Profile"} icon={require("../../assets/back.png")} />
       </View>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -97,13 +97,13 @@ const ProfileOverview = ({ navigation }) => {
                 Trainer
               </Text> */}
             </View>
-            <View style={{ flexDirection: "row" }}>
+            {/* <View style={{ flexDirection: "row" }}>
               <Text style={{ fontSize: 16 }}>⭐</Text>
               <Text style={{ fontSize: 16 }}>⭐</Text>
               <Text style={{ fontSize: 16 }}>⭐</Text>
               <Text style={{ fontSize: 16 }}>⭐</Text>
               <Text style={{ fontSize: 16 }}>⭐</Text>
-            </View>
+            </View> */}
           </View>
           <View style={{ paddingHorizontal: 20 }}>
             <View
@@ -113,7 +113,7 @@ const ProfileOverview = ({ navigation }) => {
                 style={{
                   fontFamily: "PoppinsSemiBold",
                   fontSize: 20,
-                  fontWeight: "500",
+                  // fontWeight: "500",
                 }}
               >
                 General Information

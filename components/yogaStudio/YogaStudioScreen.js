@@ -20,6 +20,10 @@ import {
 import Header from "../header/Header";
 import ProgressCard from "./ProgressCard";
 import { getYogaStudioById } from "../../action/yogaStudio/yogaStudio";
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
+import LinearGradient from 'expo-linear-gradient';
+
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 const YogaStudioScreen = ({ navigation, route }) => {
   const { id } = route.params;
@@ -39,7 +43,6 @@ const YogaStudioScreen = ({ navigation, route }) => {
       try {
         setLoading(true);
         const res = await dispatch(getYogaStudioById(id));
-        // console.log(res)
         setSelectedBusiness(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -110,19 +113,19 @@ const YogaStudioScreen = ({ navigation, route }) => {
     {
       id: 6,
       color: "#effcfc",
-      image: require("../../assets/home/menu.png"),
+      image: require("../../assets/home/catalogue.png"),
       text: "Add Catalogue",
     },
     {
       id: 7,
       color: "#d3e3fd",
-      image: require("../../assets/home/menu.png"),
+      image: require("../../assets/home/review.png"),
       text: "Reviews",
     },
     {
       id: 8,
-      color: "#f9cfd2",
-      image: require("../../assets/home/menu.png"),
+      color: "#fff2cd",
+      image: require("../../assets/home/offer.png"),
       text: "Add Offers",
     },
   ];
@@ -226,8 +229,48 @@ const YogaStudioScreen = ({ navigation, route }) => {
   return (
     <>
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+        <View style={styles.loadingContainer} >
+          <ShimmerPlaceholder style={styles.shimmerHeader} />
+          <ShimmerPlaceholder style={styles.shimmerSubHeader} />
+          <View style={[styles.card,{marginVertical:30}]}>
+               
+                <ShimmerPlaceholder style={[styles.shimmerCardImage,{marginRight:10}]} />
+                <View style={{ width: wp(70) }}>
+                  <ShimmerPlaceholder style={styles.shimmerCardText} />
+                  <ShimmerPlaceholder style={styles.shimmerCardText1} />
+                  <ShimmerPlaceholder style={styles.shimmerButton1} />
+                </View>
+              
+              </View>
+          <FlatList
+            data={gridData}
+            renderItem={() => (
+              <View style={styles.itemContainer}>
+                <ShimmerPlaceholder style={styles.shimmerCircle} />
+                <ShimmerPlaceholder style={styles.shimmerText} />
+              </View>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={4}
+            contentContainerStyle={styles.contentContainer}
+          />
+          <FlatList
+            data={cardData}
+            renderItem={() => (
+              <View style={styles.card}>
+                <View style={{ width: wp(70) }}>
+                  <ShimmerPlaceholder style={styles.shimmerCardText} />
+                  <ShimmerPlaceholder style={styles.shimmerCardText1} />
+                  <ShimmerPlaceholder style={styles.shimmerButton} />
+                </View>
+                <ShimmerPlaceholder style={styles.shimmerCardImage} />
+              </View>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalContainer}
+          />
         </View>
       ) : (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -439,6 +482,57 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  shimmerHeader: {
+    width: wp(90),
+    height: 30,
+    borderRadius: 8,
+    marginBottom: 10,
+    marginTop:30
+  },
+  shimmerSubHeader: {
+    width: wp(60),
+    height: 20,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  shimmerCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginBottom: 5,
+  },
+  shimmerText: {
+    width: 75,
+    height: 20,
+    borderRadius: 8,
+  },
+  shimmerCardText: {
+    width: wp(70),
+    height: 20,
+    borderRadius: 8,
+    marginBottom: 5,
+  },
+  shimmerCardText1: {
+    width: wp(60),
+    height: 15,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  shimmerButton1: {
+    width: wp(50),
+    height: 40,
+    borderRadius: 10,
+  },
+  shimmerButton: {
+    width: wp(20),
+    height: 40,
+    borderRadius: 10,
+  },
+  shimmerCardImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
 });
 

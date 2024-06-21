@@ -6,7 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
+  BackHandler
 } from "react-native";
 import Toast from "react-native-toast-message";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -64,6 +65,8 @@ const AddExperience = ({ navigation }) => {
     handleError(null, "date");
     hideDatePicker();
   };
+
+  
 
   const validate = async () => {
     try {
@@ -128,11 +131,27 @@ const AddExperience = ({ navigation }) => {
     return isValid;
   };
   
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent" />
-     <View style={{paddingTop:15}}>
+     <View style={{paddingTop:20}}>
       <Header
         title={"Add Experience"}
         icon={require("../../assets/back.png")}

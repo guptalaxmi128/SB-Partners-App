@@ -8,6 +8,7 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
+  BackHandler
 } from "react-native";
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
@@ -97,10 +98,27 @@ const ExperienceDetails = ({ navigation, route }) => {
     );
   };
 
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header
           title="View Experience"
           icon={require("../../assets/back.png")}

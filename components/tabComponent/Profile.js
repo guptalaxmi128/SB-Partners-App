@@ -90,7 +90,7 @@ const Profile = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header title={"Profile"} icon={require("../../assets/back.png")} />
       </View>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -104,12 +104,12 @@ const Profile = ({ navigation }) => {
           >
             <Avatar rounded source={imageUrl} size={75} />
             <View style={{ marginLeft: 20 }}>
-              <Text style={{ fontFamily: "Poppins", fontSize: 16 }}>
+              <Text style={{ fontFamily: "PoppinsSemiBold", fontSize: 16 }}>
                 {user && <>{user.data?.name}</>}
               </Text>
               <Text
                 style={{
-                  fontSize: 16,
+                  fontSize: 14,
                   fontFamily: "Poppins",
                   color: "gray",
                   marginTop: 3,
@@ -119,7 +119,7 @@ const Profile = ({ navigation }) => {
               </Text>
             </View>
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
           //   onPress={() => navigation.navigate("MyAppointment")}
           >
             <View style={styles.viewContainer}>
@@ -141,7 +141,7 @@ const Profile = ({ navigation }) => {
               />
             </View>
           </TouchableOpacity>
-          <View style={styles.hr} />
+          <View style={styles.hr} /> */}
           <TouchableOpacity onPress={() => navigation.navigate("MainProfile")}>
             <View style={styles.viewContainer}>
               <View
@@ -152,7 +152,7 @@ const Profile = ({ navigation }) => {
               >
                 <Image
                   style={styles.image}
-                  source={require("../../assets/profile-icon/note.png")}
+                  source={require("../../assets/profile-icon/profile.png")}
                 />
                 <Text style={styles.textContainer}>My Profile</Text>
               </View>
@@ -163,7 +163,7 @@ const Profile = ({ navigation }) => {
             </View>
           </TouchableOpacity>
 
-          <View style={styles.hr} />
+          {/* <View style={styles.hr} />
           <TouchableOpacity onPress={() => navigation.navigate("Wallet")}>
             <View style={styles.viewContainer}>
               <View
@@ -183,8 +183,8 @@ const Profile = ({ navigation }) => {
                 source={require("../../assets/profile-icon/arrow-right.png")}
               />
             </View>
-          </TouchableOpacity>
-          <View style={styles.hr} />
+          </TouchableOpacity> */}
+          {/* <View style={styles.hr} />
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
             <View style={styles.viewContainer}>
               <View
@@ -195,7 +195,7 @@ const Profile = ({ navigation }) => {
               >
                 <Image
                   style={styles.image}
-                  source={require("../../assets/profile-icon/notification.png")}
+                  source={require("../../assets/profile-icon/notify.png")}
                 />
                 <Text style={styles.textContainer}>Notifications</Text>
               </View>
@@ -204,7 +204,7 @@ const Profile = ({ navigation }) => {
                 source={require("../../assets/profile-icon/arrow-right.png")}
               />
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <View style={styles.hr} />
           <TouchableOpacity onPress={() => navigation.navigate("Help")}>
             <View style={styles.viewContainer}>
@@ -216,7 +216,7 @@ const Profile = ({ navigation }) => {
               >
                 <Image
                   style={styles.image}
-                  source={require("../../assets/profile-icon/notification.png")}
+                  source={require("../../assets/profile-icon/help.png")}
                 />
                 <Text style={styles.textContainer}>Help & Support</Text>
               </View>
@@ -239,7 +239,7 @@ const Profile = ({ navigation }) => {
               >
                 <Image
                   style={styles.image}
-                  source={require("../../assets/profile-icon/notification.png")}
+                  source={require("../../assets/profile-icon/shield.png")}
                 />
                 <Text style={styles.textContainer}>Privacy Policy</Text>
               </View>
@@ -262,7 +262,7 @@ const Profile = ({ navigation }) => {
               >
                 <Image
                   style={styles.image}
-                  source={require("../../assets/profile-icon/notification.png")}
+                  source={require("../../assets/profile-icon/document.png")}
                 />
                 <Text style={styles.textContainer}>Terms & Conditions</Text>
               </View>
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "gray",
     borderBottomWidth: 1,
     opacity: 0.1,
-    marginTop: 5,
+    marginTop: 8,
     marginHorizontal: 25,
   },
   viewContainer: {
@@ -324,8 +324,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   image: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
   },
   logoutContainer:{
     marginVertical: 20,

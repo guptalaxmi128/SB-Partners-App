@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Image,StatusBar } from "react-native";
+import { View, Text, StyleSheet, Image, StatusBar } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
@@ -7,12 +8,16 @@ const SplashScreen = ({ navigation }) => {
       navigation.navigate("MainStack");
     }, 3000);
   }, []);
+
   return (
-    <View style={styles.container}>
-     <StatusBar translucent backgroundColor="#284F49" />
+    <LinearGradient
+      colors={["#EEE9FF", "#5F33E1"]}
+      style={styles.container}
+    >
+      <StatusBar translucent backgroundColor="transparent" />
       <Image source={require("../../assets/sb.jpg")} style={styles.logo} />
       <Text style={styles.title}> Welcome Partner</Text>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -21,7 +26,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#284F49",
   },
   logo: {
     width: 110,
@@ -33,6 +37,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800",
     marginTop: 20,
+    fontFamily:'PoppinsSemiBold'
   },
 });
 

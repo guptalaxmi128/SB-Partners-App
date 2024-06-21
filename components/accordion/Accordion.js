@@ -40,12 +40,12 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "300",
     fontFamily:'Poppins'
   },
   openTitle: {
-    color: "#008000", // Change color when accordion is open
+    color: "#5F33E1 ", // Change color when accordion is open
   },
   icon: {
     fontSize: 20,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   answer: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily:'Poppins'
   },
 });

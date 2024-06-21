@@ -43,6 +43,9 @@ export const updateTutorTerm = (termInfo) =>
 export const updateTherapistTerm = (termInfo) =>
   api.put(`instructor/therapistTerm`, termInfo);
 
+export const updateYogaStudioTerm = (termInfo) =>
+  api.put(`instructor/yogaStudioTerm`, termInfo);
+
 // yoga studio form
 export const yogaStudio = (studio) =>
   api.post(`instructor/createYogaStudioBusiness`, studio);
@@ -184,3 +187,22 @@ export const addTherapistPhoto = (formData, id) => {
 
 export const addTherapy = ({ id, ...therapyInfo }) =>
   api.post(`instructor/addTherapyTypeOffered/${id}`, therapyInfo);
+
+export const submitYogaStudio = (id) => {
+  return api.put(`instructor/submitYogaStudio/${id}`);
+};
+
+export const submitYogaStudioContact = (id) => {
+  return api.put(`instructor/submitYSContact/${id}`);
+};
+
+export const submitYogaStudioTime = (id) => {
+  return api.put(`instructor/submitYSTime/${id}`);
+};
+export const submitYogaStudioImage = (id) => {
+  return api.put(`instructor/submitYSImage/${id}`);
+};
+
+export const publishYogaStudio = ({ id, ...publish }) => {
+  return api.put(`instructor/publishYogaStudio/${id}`, publish);
+};

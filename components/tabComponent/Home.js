@@ -30,6 +30,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import CarouselItem from "../carousel/CarouselItem";
 import { getTherapist } from "../../action/therapist/therapist";
 import { getTutor } from "../../action/homeTutor/homeTutor";
+import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
+import LinearGradient from "expo-linear-gradient";
+
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 const Home = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -51,6 +55,8 @@ const Home = ({ navigation }) => {
   const [therapist, setTherapist] = useState([]);
   const [tutor, setTutor] = useState([]);
   const [qualification, setQualification] = useState([]);
+  const [studioTerm, setStudioTerm] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const fetchAuthToken = async () => {
     try {
@@ -117,47 +123,57 @@ const Home = ({ navigation }) => {
     //   navigateTo: "CreateCourse",
     //   imageSource: require("../../assets/home/menu.png"),
     // },
-    {
-      content: "Appointment with QR",
-      subContent: "Queuing without the hustle",
-      backgroundColor: "rgba(237, 252, 242, 1)",
-      borderColor: "lightgreen",
-      imageSource: require("../../assets/home/scan.png"),
-      // navigateTo: "CourseDetails",
-    },
-    {
-      content: "Therapist",
-      subContent: "Therapist",
-      backgroundColor: "rgba(254, 246, 238, 1)",
-      borderColor: "#fccfa1",
-      imageSource: require("../../assets/home/message.png"),
-      navigateTo: "FirstTherapistScreen",
-    },
-    {
-      content: "Locate yoga studio",
-      subContent: "Purchase Medicines",
-      backgroundColor: "rgba(254, 243, 242, 1)",
-      borderColor: "#f7bbb9",
-      imageSource: require("../../assets/home/building.png"),
-      navigateTo: "YogaStudio",
-    },
+    // {
+    //   content: "Appointment with QR",
+    //   subContent: "Queuing without the hustle",
+    //   backgroundColor: "rgba(237, 252, 242, 1)",
+    //   borderColor: "lightgreen",
+    //   imageSource: require("../../assets/home/scan.png"),
+    //   // navigateTo: "CourseDetails",
+    // },
     {
       content: "Yoga Classes at Home",
       subContent: "Yoga classes",
       backgroundColor: "rgba(254, 243, 242, 1)",
       borderColor: "#f7bbb9",
-      imageSource: require("../../assets/home/video.png"),
+      imageSource: require("../../assets/home/video1.png"),
       // navigateTo: "HomeTutor", this is for home tutor registration
       navigateTo: "FirstHTutorScreen",
     },
     {
+      content: "Therapist",
+      // subContent: "Therapist",
+      subContent: "Coming Soon ....",
+      backgroundColor: "rgba(254, 246, 238, 1)",
+      borderColor: "#fccfa1",
+      imageSource: require("../../assets/home/activity.png"),
+      // navigateTo: "FirstTherapistScreen",
+      navigateTo: "ComingSoonTherapist",
+    },
+    {
+      content: "Locate yoga studio",
+      // subContent: "Purchase Medicines",
+      subContent: "Coming Soon ....",
+      backgroundColor: "rgba(254, 243, 242, 1)",
+      borderColor: "#f7bbb9",
+      imageSource: require("../../assets/home/building.png"),
+      // navigateTo: "YogaStudio",
+      // navigateTo: "FirstYogaStudioScreen",
+      navigateTo: "ComingSoonStudio",
+    },
+
+    {
       content: "Register as Yoga Influencer",
-      subContent: "yoga influencer",
+      // subContent: "yoga influencer",
+      subContent: "Coming Soon .....",
       backgroundColor: "rgba(249, 245, 255, 1)",
       borderColor: "lightblue",
-      imageSource: require("../../assets/home/influencer.png"),
+      imageSource: require("../../assets/home/video.png"),
+
       // navigateTo: "AddTimeSlot",
       // navigateTo: "FirstTherapistScreen",
+      // navigateTo:'YogaStudioScreen'
+      navigateTo: "ComingSoonInfluencer",
     },
   ];
 
@@ -181,20 +197,22 @@ const Home = ({ navigation }) => {
     return () => backHandler.remove();
   }, []);
 
-  useEffect(() => {
-    if (studio && studio.data) {
-      setData(studio.data);
-    }
-  }, [studio]);
+  // useEffect(() => {
+  //   if (studio && studio.data) {
+  //     setData(studio.data);
+  //   }
+  // }, [studio]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoader(true);
         const res = await dispatch(getInstructor());
-        // console.log(res.data);
+        console.log(res.data);
         setQualification(res.data.qualifications);
         setTermsAndConditions(res.data.homeTutorTermAccepted);
         setTherapistTerm(res.data.therapistTermAccepted);
+        setStudioTerm(res.data.yogaStudioTermAccepted);
       } catch (error) {
         console.error("Error fetching data:", error);
         const msg = error.response?.data?.message;
@@ -202,16 +220,19 @@ const Home = ({ navigation }) => {
         console.log(statusCode);
         if (msg === "Please complete your profile!") {
           console.log("Navigating to ProfileOverview");
-          navigation.navigate("ProfileOverview");
-        } 
-        // else {
-        //   Toast.show({
-        //     type: "error",
-        //     text1: msg || "An error occurred. Please try again.",
-        //     visibilityTime: 2000,
-        //     autoHide: true,
-        //   });
-        // }
+          setTimeout(() => {
+            navigation.navigate("ProfileOverview");
+          }, 3000);
+        } else {
+          Toast.show({
+            type: "error",
+            text1: msg || "An error occurred. Please try again.",
+            visibilityTime: 2000,
+            autoHide: true,
+          });
+        }
+      } finally {
+        setLoader(false);
       }
     };
 
@@ -221,30 +242,31 @@ const Home = ({ navigation }) => {
   // console.log("therapist", address);
   // console.log(location)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await dispatch(getYogaStudio());
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        const msg = error.response.data.message;
-        if (msg === "Please complete your profile!") {
-          console.log("Navigating to ProfileOverview");
-          navigation.navigate("ProfileOverview");
-        } 
-        // else {
-        //   Toast.show({
-        //     type: "error",
-        //     text1: msg || "An error occurred. Please try again.",
-        //     visibilityTime: 2000,
-        //     autoHide: true,
-        //   });
-        // }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       await dispatch(getYogaStudio());
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       const msg = error.response.data.message;
+  //       if (msg === "Please complete your profile!") {
+  //         console.log("Navigating to ProfileOverview");
+  //         setTimeout(() => {
+  //           navigation.navigate("ProfileOverview");
+  //         }, 3000);
+  //       } else {
+  //         Toast.show({
+  //           type: "error",
+  //           text1: msg || "An error occurred. Please try again.",
+  //           visibilityTime: 2000,
+  //           autoHide: true,
+  //         });
+  //       }
+  //     }
+  //   };
 
-    fetchData();
-  }, [dispatch]);
+  //   fetchData();
+  // }, [dispatch]);
 
   useEffect(() => {
     return () => {
@@ -254,248 +276,382 @@ const Home = ({ navigation }) => {
     };
   }, []);
 
-  function handlePresentModal() {
-    bottomSheetModalRef.current?.present();
-  }
+  // function handlePresentModal() {
+  //   bottomSheetModalRef.current?.present();
+  // }
 
-  const handleStudioSelection = (studioId) => {
-    if (bottomSheetModalRef.current) {
-      bottomSheetModalRef.current.close();
-    }
-    navigation.navigate("YogaStudioScreen", { id: studioId });
-  };
+  // const handleStudioSelection = (studioId) => {
+  //   if (bottomSheetModalRef.current) {
+  //     bottomSheetModalRef.current.close();
+  //   }
+  //   navigation.navigate("YogaStudioScreen", { id: studioId });
+  // };
 
-  const handleNewBusiness = () => {
-    if (bottomSheetModalRef.current) {
-      bottomSheetModalRef.current.close();
-    }
-    navigation.navigate("YStudioForm");
-  };
+  // const handleNewBusiness = () => {
+  //   if (bottomSheetModalRef.current) {
+  //     bottomSheetModalRef.current.close();
+  //   }
+  //   navigation.navigate("YStudioForm");
+  // };
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const res = await dispatch(getTherapist());
+  //       // console.log(res)
+  //       setTherapist(res.data);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       const msg = error.response.data.message;
+  //       if (msg === "Please complete your profile!") {
+  //         console.log("Navigating to ProfileOverview");
+  //         setTimeout(() => {
+  //           navigation.navigate("ProfileOverview");
+  //         }, 3000);
+  //       } else {
+  //         Toast.show({
+  //           type: "error",
+  //           text1: msg || "An error occurred. Please try again.",
+  //           visibilityTime: 2000,
+  //           autoHide: true,
+  //         });
+  //       }
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [dispatch]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await dispatch(getTherapist());
-        // console.log(res)
-        setTherapist(res.data);
-
-       
-      } catch (error) {
-        console.error("Error fetching data:", error);
-          const msg = error.response.data.message;
-        if (msg === "Please complete your profile!") {
-          console.log("Navigating to ProfileOverview");
-          navigation.navigate("ProfileOverview");
-        }
-        //  else {
-        //   Toast.show({
-        //     type: "error",
-        //     text1: msg || "An error occurred. Please try again.",
-        //     visibilityTime: 2000,
-        //     autoHide: true,
-        //   });
-        // }
-      }finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dispatch]);
-
-    useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
         const res = await dispatch(getTutor());
         // console.log(res)
-        setTutor(res.data);  
+        setTutor(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
-           const msg = error.response.data.message;
+        const msg = error.response.data.message;
         if (msg === "Please complete your profile!") {
           console.log("Navigating to ProfileOverview");
-          navigation.navigate("ProfileOverview");
-        } 
-        // else {
-        //   Toast.show({
-        //     type: "error",
-        //     text1: msg || "An error occurred. Please try again.",
-        //     visibilityTime: 2000,
-        //     autoHide: true,
-        //   });
-        // }
-      }finally {
+          setTimeout(() => {
+            navigation.navigate("ProfileOverview");
+          }, 3000);
+        } else {
+          Toast.show({
+            type: "error",
+            text1: msg || "An error occurred. Please try again.",
+            visibilityTime: 2000,
+            autoHide: true,
+          });
+        }
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
   }, [dispatch]);
-  // console.log(termsAndConditions)
-  // console.log(tutor.timeSlotes)
 
-  // console.log(user);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
         <StatusBar backgroundColor="#fff" barStyle="dark-content" />
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={{ flex: 1, paddingTop: StatusBar.currentHeight || 0 }}>
-            <View style={styles.topHeader}>
-              <View style={{ width: "85%" }}>
-                <Text style={[styles.text, { fontSize: 20, lineHeight: 32 }]}>
-                  Hi, {user && <>{user.data.name}</>}!
-                </Text>
-
-                {loading ? (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="small" color="#0000ff" />
-                  </View>
-                ) : errorMsg ? (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{errorMsg}</Text>
-                    <TouchableOpacity onPress={getLocation}>
-                      <Text style={styles.retryText}>Try Again</Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : address ? (
-                  <View style={styles.addressContainer}>
-                    <Image
-                      source={require("../../assets/get-screen/location.png")}
-                      style={{ width: 20, height: 22, marginRight: 4 }}
-                    />
-                    <Text style={styles.addressText}>
-                      {address.name ? address.name + ", " : ""}
-                      {address.street ? address.street + ", " : ""}
-                      {address.city ? address.city + ", " : ""}
-                      {address.region ? address.region + ", " : ""}
-                      {address.postalCode ? address.postalCode : ""}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-              <TouchableOpacity
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 8,
-                  backgroundColor: "rgba(249, 250, 251, 1)",
-                  padding: 8,
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: "gray",
-                }}
-                onPress={() => navigation.navigate("Notification")}
-              >
-                <Image
-                  style={{ width: 20, height: 20 }}
-                  source={require("../../assets/notify.png")}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ marginTop: 8 }}>
-              <CarouselItem />
-            </View>
-            <View style={styles.cardContainer}>
-              {cardsData.map((card, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.card,
-                    {
-                      width: cardWidth,
-                      height: cardHeight,
-                      backgroundColor: card.backgroundColor,
-                      padding: 12,
-                    },
-                  ]}
-                  onPress={() => {
-                    const hasQualificationIn = (type) => {
-                      return qualification.some(
-                        (q) => q.qualificationIn === type
-                      );
-                    };
-
-                    if (
-                      therapistTerm === true &&
-                      card.content === "Therapist" &&
-                      therapist.length === 0
-                    ) {
-                      navigation.navigate("Therapist");
-                    } else if (
-                      termsAndConditions === true &&
-                      card.content === "Yoga Classes at Home" &&
-                      tutor.length === 0
-                    ) {
-                      navigation.navigate("HomeTutor");
-                    } else {
-                      if (card.content === "Yoga Classes at Home") {
-                        if (hasQualificationIn("HomeTutor")) {
-                          navigation.navigate(
-                            termsAndConditions
-                              ? "AllHomeTutor"
-                              : card.navigateTo
-                          );
-                        } else {
-                          navigation.navigate("AddQualification");
-                        }
-                      } else if (card.content === "Therapist") {
-                        if (hasQualificationIn("Therapist")) {
-                          navigation.navigate(
-                            therapistTerm ? "AllTherapist" : card.navigateTo
-                          );
-                        } else {
-                          navigation.navigate("AddQualification");
-                        }
-                      } else if (card.navigateTo === "YogaStudio") {
-                        handlePresentModal();
-                      } else {
-                        navigation.navigate(card.navigateTo);
-                      }
-                    }
-                  }}
-                >
+            {loading && loader ? (
+              <>
+                <View style={{ marginTop: 40, paddingHorizontal: 20 }}>
                   <View
-                    style={[
-                      styles.imageContainer,
-                      { borderColor: card.borderColor },
-                    ]}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
                   >
-                    <Image
-                      style={{ width: 32, height: 32 }}
-                      source={card.imageSource}
+                    <View>
+                      <ShimmerPlaceholder style={styles.text} />
+                      <ShimmerPlaceholder
+                        style={[styles.shimmerText, { marginVertical: 10 }]}
+                      />
+                      <ShimmerPlaceholder style={styles.text} />
+                    </View>
+                    <ShimmerPlaceholder style={styles.shimmerButton} />
+                  </View>
+                  <View style={{ marginTop: 15 }}>
+                    <ShimmerPlaceholder
+                      style={{ borderRadius: 10, height: 200, width: wp(90) }}
                     />
                   </View>
-                  <Text
+                  <View style={{ marginVertical: 20 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ShimmerPlaceholder
+                        style={{ borderRadius: 10, height: 200, width: wp(42) }}
+                      />
+                      <ShimmerPlaceholder
+                        style={{
+                          borderRadius: 10,
+                          height: 200,
+                          width: wp(42),
+                          marginLeft: 10,
+                        }}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginVertical: 10,
+                      }}
+                    >
+                      <ShimmerPlaceholder
+                        style={{ borderRadius: 10, height: 200, width: wp(42) }}
+                      />
+                      <ShimmerPlaceholder
+                        style={{
+                          borderRadius: 10,
+                          height: 200,
+                          width: wp(42),
+                          marginLeft: 10,
+                        }}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={styles.topHeader}>
+                  <View style={{ width: "90%" }}>
+                    <Text
+                      style={[styles.text, { fontSize: 20, lineHeight: 32 }]}
+                    >
+                      Hi,&nbsp;
+                      {user && (
+                        <Text style={{ fontFamily: "PoppinsSemiBold" }}>
+                          {user.data.name}
+                        </Text>
+                      )}
+                      !
+                    </Text>
+
+                    {loading ? (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="small" color="#0000ff" />
+                      </View>
+                    ) : errorMsg ? (
+                      <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{errorMsg}</Text>
+                        <TouchableOpacity onPress={getLocation}>
+                          <Text style={styles.retryText}>Try Again</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : address ? (
+                      <View style={styles.addressContainer}>
+                        <Text style={styles.addressText}>
+                          {address.name ? address.name + ", " : ""}
+                          {address.street ? address.street + ", " : ""}
+                          {address.city ? address.city + ", " : ""}
+                          {address.region ? address.region + ", " : ""}
+                          {address.postalCode ? address.postalCode : ""}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  {/* <TouchableOpacity
                     style={{
-                      fontFamily: "PoppinsSemiBold",
-                      fontSize: 16,
-                      lineHeight: 28,
-                      marginVertical: 5,
-                      fontWeight: "600",
+                      width: 40,
+                      height: 40,
+                      borderRadius: 8,
+                      backgroundColor: "rgba(249, 250, 251, 1)",
+                      padding: 8,
+                      alignItems: "center",
+                      borderWidth: 1,
+                      borderColor: "gray",
                     }}
+                    onPress={() => navigation.navigate("Notification")}
                   >
-                    {card.content}
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: "Poppins",
-                      fontSize: 12,
-                      lineHeight: 20,
-                      color: "gray",
-                    }}
-                  >
-                    {card.subContent}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    <Image
+                      style={{ width: 20, height: 20 }}
+                      source={require("../../assets/notify.png")}
+                    />
+                  </TouchableOpacity> */}
+                </View>
+                <View style={{ marginTop: 8 }}>
+                  <CarouselItem />
+                </View>
+                <View style={styles.cardContainer}>
+                  {cardsData.map((card, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.card,
+                        {
+                          width: cardWidth,
+                          height: cardHeight,
+                          backgroundColor: card.backgroundColor,
+                          padding: 12,
+                        },
+                      ]}
+                      // onPress={() => {
+                      //   const hasQualificationIn = (type) => {
+                      //     return qualification.some(
+                      //       (q) => q.qualificationIn === type
+                      //     );
+                      //   };
+
+                      //   if (
+                      //     therapistTerm === true &&
+                      //     card.content === "Therapist" &&
+                      //     therapist.length === 0
+                      //   ) {
+                      //     navigation.navigate("Therapist");
+                      //   } else if (
+                      //     termsAndConditions === true &&
+                      //     card.content === "Yoga Classes at Home" &&
+                      //     tutor.length === 0
+                      //   ) {
+                      //     navigation.navigate("HomeTutor");
+                      //   } else {
+                      //     if (card.content === "Yoga Classes at Home") {
+                      //       if (hasQualificationIn("HomeTutor")) {
+                      //         navigation.navigate(
+                      //           termsAndConditions
+                      //             ? "AllHomeTutor"
+                      //             : card.navigateTo
+                      //         );
+                      //       } else {
+                      //         navigation.navigate("AddQualification");
+                      //       }
+                      //     } else if (card.content === "Therapist") {
+                      //       if (hasQualificationIn("Therapy")) {
+                      //         navigation.navigate(
+                      //           therapistTerm ? "AllTherapist" : card.navigateTo
+                      //         );
+                      //       } else {
+                      //         navigation.navigate("AddQualification");
+                      //       }
+                      //     } else if (card.content === "Locate yoga studio") {
+                      //       if (hasQualificationIn("YogaStudio")) {
+                      //         if (studioTerm) {
+                      //           handlePresentModal(); // Open bottom sheet modal
+                      //         } else {
+                      //           navigation.navigate("FirstYogaStudioScreen"); // Navigate to screen directly
+                      //         }
+                      //       } else {
+                      //         navigation.navigate("AddQualification");
+                      //       }
+                      //     } else {
+                      //       navigation.navigate(card.navigateTo);
+                      //     }
+                      //   }
+                      // }}
+
+                      onPress={() => {
+                        const hasQualificationIn = (type) => {
+                          return qualification.some(
+                            (q) => q.qualificationIn === type
+                          );
+                        };
+
+                        if (
+                          termsAndConditions === true &&
+                          card.content === "Yoga Classes at Home" &&
+                          tutor.length === 0
+                        ) {
+                          navigation.navigate("HomeTutor");
+                        } else {
+                          if (card.content === "Yoga Classes at Home") {
+                            if (hasQualificationIn("HomeTutor")) {
+                              navigation.navigate(
+                                termsAndConditions
+                                  ? "AllHomeTutor"
+                                  : card.navigateTo
+                              );
+                            } else {
+                              Toast.show({
+                                type: "info",
+                                text1: "Qualification Needed",
+                                text2:
+                                  "Please add your qualifications for home tutor.",
+                                visibilityTime: 3000,
+                                autoHide: true,
+                              });
+                              navigation.navigate("AddQualification");
+                            }
+                          }
+                          // else if (card.content === "Therapist") {
+                          //   if (hasQualificationIn("Therapy")) {
+                          //     navigation.navigate(
+                          //       therapistTerm ? "AllTherapist" : card.navigateTo
+                          //     );
+                          //   } else {
+                          //     navigation.navigate("AddQualification");
+                          //   }
+                          // } else if (card.content === "Locate yoga studio") {
+                          //   if (hasQualificationIn("YogaStudio")) {
+                          //     if (studioTerm) {
+                          //       handlePresentModal(); // Open bottom sheet modal
+                          //     } else {
+                          //       navigation.navigate("FirstYogaStudioScreen"); // Navigate to screen directly
+                          //     }
+                          //   } else {
+                          //     navigation.navigate("AddQualification");
+                          //   }
+                          // }
+                          else {
+                            navigation.navigate(card.navigateTo);
+                          }
+                        }
+                      }}
+                    >
+                      <View
+                        style={[
+                          styles.imageContainer,
+                          { borderColor: card.borderColor },
+                        ]}
+                      >
+                        <Image
+                          style={{ width: 38, height: 38 }}
+                          source={card.imageSource}
+                        />
+                      </View>
+                      <Text
+                        style={{
+                          fontFamily: "PoppinsSemiBold",
+                          fontSize: 16,
+                          lineHeight: 28,
+                          marginVertical: 5,
+                          fontWeight: "600",
+                        }}
+                      >
+                        {card.content}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Poppins",
+                          fontSize: 12,
+                          lineHeight: 20,
+                          color: "gray",
+                        }}
+                      >
+                        {card.subContent}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
         </ScrollView>
-        <BottomSheetModal
+        {/* <BottomSheetModal
           ref={bottomSheetModalRef}
           index={0}
           snapPoints={snapPoints}
@@ -535,7 +691,7 @@ const Home = ({ navigation }) => {
               <Text style={styles.addButtonText}>Add New Business</Text>
             </TouchableOpacity>
           </View>
-        </BottomSheetModal>
+        </BottomSheetModal> */}
       </View>
     </GestureHandlerRootView>
   );
@@ -548,7 +704,7 @@ const styles = StyleSheet.create({
   },
   topHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 15,
   },
@@ -631,7 +787,7 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -12 }],
   },
   addressText: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: "Poppins",
   },
   locationText: {
@@ -654,10 +810,19 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   addressContainer: {
-    paddingRight: 10,
+    // paddingRight: 10,
     lineHeight: 20,
     textAlign: "justify",
-    flexDirection: "row",
+    // flexDirection: "row",
+  },
+  shimmerButton: {
+    width: wp(15),
+    height: hp(8),
+    borderRadius: 10,
+  },
+  shimmerText: {
+    width: wp(70),
+    height: hp(2),
   },
 });
 

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
+  BackHandler
 } from "react-native";
 import CustomHeader from "../CustomHeader/CustomHeader";
 import { getInstructor } from "../../action/auth/auth";
@@ -44,10 +45,27 @@ const Experience = ({ navigation }) => {
   const handlePress = (experienceId) => {
     navigation.navigate("ExperienceDetails", { id: experienceId });
   };
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <CustomHeader
           title="Experience"
           icon={require("../../assets/back.png")}

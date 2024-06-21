@@ -8,15 +8,15 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  BackHandler
+  BackHandler,
 } from "react-native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import MapView, { Marker} from "react-native-maps";
-import { GOOGLE_MAPS_APIKEY } from "../../apiKey/index";
+// import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+// import MapView, { Marker } from "react-native-maps";
+// import { GOOGLE_MAPS_APIKEY } from "../../apiKey/index";
 import { useDispatch, useSelector } from "react-redux";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import * as ImagePicker from "expo-image-picker";
@@ -25,6 +25,7 @@ import Header from "../header/Header";
 import Input from "../input/Input";
 import Button from "../button/Button";
 import AddCustomData from "../addCustomdata/AddCustomData";
+import * as Location from "expo-location";
 import { getInstructor, updateInstructor } from "../../action/auth/auth";
 
 const defaultLocation = {
@@ -55,9 +56,12 @@ const EditProfile = ({ navigation }) => {
   const [errors, setErrors] = useState({});
   const [image, setImage] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
-  const [location,setLocation]=useState(defaultLocation);
+  const [location, setLocation] = useState(defaultLocation);
   const [name, setName] = useState("");
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  // const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [loading1, setLoading1] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -89,31 +93,68 @@ const EditProfile = ({ navigation }) => {
     };
   }, [navigation]);
 
-  const handleLocationSelect = (data, details) => {
-    // const locationName=details?.formatted_address;
-    // console.log(details.formatted_address);
-    const { lat, lng } = details.geometry.location;
-    setLocation({
-      latitude: parseFloat(lat.toFixed(7)),
-      longitude: parseFloat(lng.toFixed(7)),
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
-    });
-    setName(details.formatted_address);
+  // const handleLocationSelect = (data, details) => {
+  //   // const locationName=details?.formatted_address;
+  //   // console.log(details.formatted_address);
+  //   const { lat, lng } = details.geometry.location;
+  //   setLocation({
+  //     latitude: parseFloat(lat.toFixed(7)),
+  //     longitude: parseFloat(lng.toFixed(7)),
+  //     latitudeDelta: 0.05,
+  //     longitudeDelta: 0.05,
+  //   });
+  //   setName(details.formatted_address);
+  // };
+
+  // useEffect(() => {
+  //   // Enable submit button only if radius, name, latitude, and longitude are set and not default
+  //   if (
+  //     name &&
+  //     location.latitude !== defaultLocation.latitude &&
+  //     location.longitude !== defaultLocation.longitude
+  //   ) {
+  //     setIsSubmitDisabled(false);
+  //   } else {
+  //     setIsSubmitDisabled(true);
+  //   }
+  // }, [ name, location]);
+  const getLocation = async () => {
+    setLoading(true);
+    setErrorMsg(null);
+    setAddress(null);
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        setLoading(false);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: parseFloat(location.coords.latitude.toFixed(7)),
+        longitude:parseFloat(location.coords.longitude.toFixed(7)),
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      });
+
+      let geocode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      setAddress(geocode[0].formattedAddress);
+    } catch (error) {
+      setErrorMsg("Error fetching location");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    // Enable submit button only if radius, name, latitude, and longitude are set and not default
-    if (
-      name &&
-      location.latitude !== defaultLocation.latitude &&
-      location.longitude !== defaultLocation.longitude
-    ) {
-      setIsSubmitDisabled(false);
-    } else {
-      setIsSubmitDisabled(true);
-    }
-  }, [ name, location]);
+    getLocation();
+  }, []);
 
   const nextStep = () => {
     setCurrentStep((prevStep) =>
@@ -162,7 +203,13 @@ const EditProfile = ({ navigation }) => {
         await dispatch(getInstructor());
       } catch (error) {
         console.error("Error fetching data:", error);
-        message.error(error.response.data.message);
+        const msg = error.response.data?.message;
+        Toast.show({
+          type: "error",
+          text1: msg || "An error occurred. Please try again.",
+          visibilityTime: 2000,
+          autoHide: true,
+        });
       }
     };
 
@@ -175,17 +222,22 @@ const EditProfile = ({ navigation }) => {
         name: user.data.name || "",
         email: user.data.email || "",
         mobileNumber: user.data.phoneNumber || "",
-        bio:user.data.bio || "",
+        bio: user.data.bio || "",
         facebook: user.data.facebook || "",
         twitter_x: user.data.twitter_x || "",
         linkedIn: user.data.linkedIn || "",
-        instagram:user.data.instagram || "",
+        instagram: user.data.instagram || "",
       });
     }
   }, [user]);
 
   const validate = async () => {
     let isValid = true;
+
+    console.log("Inputs:", inputs);
+    console.log("Date:", date);
+    console.log("Languages:", languages);
+    console.log("Image:", image);
 
     if (!inputs.name) {
       handleError("Please input name", "name");
@@ -242,16 +294,69 @@ const EditProfile = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
+    let isValid = true;
+
+    console.log("Inputs:", inputs);
+    console.log("Date:", date);
+    console.log("Languages:", languages);
+    console.log("Image:", image);
+
+    if (!inputs.name) {
+      handleError("Please input name", "name");
+      isValid = false;
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please input name",
+      });
+    }
+    if (date === "Select Date") {
+      handleError("Please select a date", "date");
+      isValid = false;
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please select a date",
+      });
+    }
+
+    if (!inputs.bio) {
+      handleError("Please input bio", "bio");
+      isValid = false;
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please input bio",
+      });
+    }
+
+    if (languages.length === 0) {
+      isValid = false;
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please select at least one language",
+      });
+    }
+
+    if (!image) {
+      isValid = false;
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please upload image",
+      });
+    }
     try {
-      setLoading(true);
+      setLoading1(true);
 
       const formData = new FormData();
       formData.append("dateOfBirth", date);
-      formData.append("location", name);
+      formData.append("location", address);
       formData.append("name", inputs.name);
       formData.append("bio", inputs.bio);
-      formData.append("longitude", location.longitude);
-      formData.append("latitude", location.latitude);
+      formData.append("longitude", String(location.longitude));
+      formData.append("latitude", String(location.latitude));
       languages.forEach((language) => {
         formData.append("languages", language);
       });
@@ -293,18 +398,17 @@ const EditProfile = ({ navigation }) => {
       }
     } catch (error) {
       console.error("Error occurred while updating profile:", error);
-      const msg=error.response.data?.message
+      const msg = error.response.data?.message;
       Toast.show({
         type: "error",
-        text1: msg  || "An error occurred. Please try again.",
+        text1: msg ,
         visibilityTime: 2000,
         autoHide: true,
       });
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
-
 
   const renderStep = () => {
     switch (currentStep) {
@@ -316,7 +420,7 @@ const EditProfile = ({ navigation }) => {
         return null;
     }
   };
-
+  console.log(address);
   const renderStep1 = () => {
     return (
       <ScrollView
@@ -369,7 +473,7 @@ const EditProfile = ({ navigation }) => {
             placeholder="LinkedIn Link"
             value={inputs.linkedIn}
           />
-      
+
           <Input
             style={{
               padding: 8,
@@ -455,29 +559,10 @@ const EditProfile = ({ navigation }) => {
             )}
           </View>
         </View>
-        <Button
-          title={
-            loading ? (
-              <ActivityIndicator
-                size="small"
-                color="#ffffff"
-                style={styles.indicator}
-              />
-            ) : (
-              "Save"
-            )
-          }
-          onPress={validate}
-        />
-      </ScrollView>
-    );
-  };
-  const renderStep2 = () =>{
-    return (
-      <View style={styles.stepContainer}>
-      <View style={styles.autocompleteContainer}>
-        <Text style={styles.label}>Location</Text>
-        <GooglePlacesAutocomplete
+        {/* <View style={styles.stepContainer}> */}
+        {/* <View style={styles.autocompleteContainer}> */}
+        {/* <Text style={styles.label}>Location</Text> */}
+        {/* <GooglePlacesAutocomplete
           placeholder="Search by location"
           onPress={handleLocationSelect}
           query={{
@@ -499,47 +584,146 @@ const EditProfile = ({ navigation }) => {
             container: { flex: 0 },
             listView: { zIndex: 1000 },
           }}
-        />
-      </View>
+        /> */}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="#0000ff" />
+          </View>
+        ) : errorMsg ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+            <TouchableOpacity onPress={getLocation}>
+              <Text style={styles.retryText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : address && location ? (
+          <View style={{marginTop:10}}>
+          <Input
+            // onChangeText={(text) => handleOnchange(text, "location")}
+            label="Location"
+            placeholder="Enter Location"
+            value={address}
+            isRequired={true}
+          />
+          </View>
+        ) : null}
 
-      {location && (
-        <View>
-          <MapView style={styles.map} region={location}>
-            <Marker coordinate={location} />
-           
-          </MapView>
-        </View>
-      )}
-     
-      <Button
-        title={
-          loading ? (
-            <ActivityIndicator
-              size="small"
-              color="#ffffff"
-              style={styles.indicator}
-            />
-          ) : (
-            "Submit"
-          )
-        }
-        onPress={handleSubmit}
-      />
-    </View>
-    )
-  }
+        {/* </View> */}
+
+        {/* {location && (
+          <View>
+            <MapView style={styles.map} region={location} apiKey={GOOGLE_MAPS_APIKEY}>
+              <Marker coordinate={location} />
+            </MapView>
+          </View>
+        )} */}
+
+        <Button
+          title={
+            loading1 ? (
+              <ActivityIndicator
+                size="small"
+                color="#ffffff"
+                style={styles.indicator}
+              />
+            ) : (
+              "Submit"
+            )
+          }
+          onPress={handleSubmit}
+        />
+        {/* </View> */}
+        {/* <Button
+          title={
+            loading ? (
+              <ActivityIndicator
+                size="small"
+                color="#ffffff"
+                style={styles.indicator}
+              />
+            ) : (
+              "Next"
+            )
+          }
+          onPress={validate}
+        /> */}
+      </ScrollView>
+    );
+  };
+  console.log(location);
+  // const renderStep2 = () => {
+  //   return (
+  //     <View style={styles.stepContainer}>
+  //       <View style={styles.autocompleteContainer}>
+  //         {/* <Text style={styles.label}>Location</Text> */}
+  //         {/* <GooglePlacesAutocomplete
+  //         placeholder="Search by location"
+  //         onPress={handleLocationSelect}
+  //         query={{
+  //           key: GOOGLE_MAPS_APIKEY,
+  //           language: "en",
+  //         }}
+  //         fetchDetails={true}
+  //         textInputProps={{
+  //           style: {
+  //             borderColor:  "gray",
+  //             borderWidth: 1,
+  //             height: 50,
+  //             borderRadius: 10,
+  //             paddingHorizontal: 10,
+  //             width: "100%",
+  //           },
+  //         }}
+  //         styles={{
+  //           container: { flex: 0 },
+  //           listView: { zIndex: 1000 },
+  //         }}
+  //       /> */}
+  //         <Input
+  //           onChangeText={(text) => handleOnchange(text, "location")}
+  //           label="Location"
+  //           placeholder="Enter Location"
+  //           value={address}
+  //         />
+  //       </View>
+
+  //       {location && (
+  //         <View>
+  //           <MapView style={styles.map} region={location}>
+  //             <Marker coordinate={location} />
+  //           </MapView>
+  //         </View>
+  //       )}
+
+  //       <Button
+  //         title={
+  //           loading1 ? (
+  //             <ActivityIndicator
+  //               size="small"
+  //               color="#ffffff"
+  //               style={styles.indicator}
+  //             />
+  //           ) : (
+  //             "Submit"
+  //           )
+  //         }
+  //         onPress={handleSubmit}
+  //       />
+  //     </View>
+  //   );
+  // };
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header
           title={"Edit Profile"}
           icon={require("../../assets/back.png")}
         />
       </View>
-<View style={{paddingHorizontal:20}}>
+      {/* <View style={{paddingHorizontal:20}}>
       <View style={styles.progressContainer}>
-        {/* Progress Bar */}
+        
         {[...Array(totalSteps)].map((_, index) => (
           <View
             key={index}
@@ -550,9 +734,9 @@ const EditProfile = ({ navigation }) => {
           />
         ))}
       </View>
-      </View>
+      </View> */}
       <View style={{ flex: 1, marginVertical: 10 }}>
-        <View>{renderStep()}</View>
+        <View>{renderStep1()}</View>
       </View>
     </View>
   );
@@ -638,7 +822,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   progressBarActive: {
-    backgroundColor: "rgba(102, 42, 178, 1)",
+    backgroundColor: "#5F33E1",
   },
   stepContainer: {
     padding: 20,
@@ -652,6 +836,21 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 300,
     marginVertical: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#f00",
+  },
+  retryText: {
+    color: "#00f",
+    textDecorationLine: "underline",
   },
 });
 

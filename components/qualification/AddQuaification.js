@@ -8,7 +8,7 @@ import {
   StatusBar,
   ActivityIndicator,
   TouchableOpacity,
-  BackHandler
+  BackHandler,
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -30,15 +30,14 @@ import { addQualification } from "../../action/qualification/qualification";
 import { useNavigation } from "@react-navigation/native";
 
 const qualificationItem = [
-  {key:'1', value:'YogaStudio'},
-  {key:'2', value:'HomeTutor'},
-  {key:'3', value:'Therapy'},
- 
-]
+  // { key: "1", value: "YogaStudio" },
+  { key: "1", value: "HomeTutor" },
+  // { key: "3", value: "Therapy" },
+];
 
 const AddQualification = () => {
   const dispatch = useDispatch();
-  const navigation=useNavigation();
+  const navigation = useNavigation();
   const [inputs, setInputs] = useState({
     courseType: "",
     course: "",
@@ -49,7 +48,7 @@ const AddQualification = () => {
     percentage: "",
     CGPA: "",
     document: "",
-    qualificationIn:''
+    qualificationIn: "",
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -59,14 +58,12 @@ const AddQualification = () => {
   const [selectedFormat, setSelectedFormat] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [courseOptions, setCourseOptions] = useState([]);
-  const [courseDurationData,setCourseDurationData]=useState(null);
-  const [image,setImage]=useState([])
-
-
+  const [courseDurationData, setCourseDurationData] = useState(null);
+  const [image, setImage] = useState([]);
 
   const courseTypes = useSelector((state) => state.institute.courseType);
 
-  const institutes = useSelector((state) => state.institute.institute);
+  // const institutes = useSelector((state) => state.institute.institute);
   const courseDurationType = useSelector(
     (state) => state.institute.courseDurationType
   );
@@ -77,7 +74,7 @@ const AddQualification = () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: ["image/*", "application/pdf"],
-        multiple:false
+        multiple: false,
       });
 
       if (!result.canceled) {
@@ -85,11 +82,10 @@ const AddQualification = () => {
         // console.log(result)
         setSelectedFile({
           uri: file.uri,
-          type: file.mimeType  || 'application/octet-stream',
+          type: file.mimeType || "application/octet-stream",
           name: file.name,
         });
-        setImage(result.assets)
-        
+        setImage(result.assets);
       } else {
         console.log("Document picking canceled or failed.");
       }
@@ -109,47 +105,53 @@ const AddQualification = () => {
     setErrors((prevState) => ({ ...prevState, [input]: error }));
   };
 
- const handleSelectChange = async (val, input) => {
-  setInputs((prevState) => ({
-    ...prevState,
-    [input]: val,
-  }));
-  setErrors((prevState) => ({ ...prevState, [input]: "" }));
+  const handleErrors = (error, fieldName) => {
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [fieldName]: error
+    }));
+  };
 
-  if (input === "courseType") {
-    // setLoading(true);
-    try {
-      await dispatch(getCourseDurationType(val));
-      const courseDurationData = courseDurationType?.data;
-      console.log(courseDurationData);
-      if (courseDurationData && courseDurationData.length > 0) {
-        const courseOptions = courseDurationData.map((courseData) => ({
-          label: courseData.courseName,
-          value: courseData.courseName,
-        }));
-        setCourseOptions(courseOptions);
-        setCourseDurationData(courseDurationData); 
-      }
-    } catch (error) {
-      console.error("Error fetching course duration type:", error);
-    } 
-  }
+  // const handleSelectChange = async (val, input) => {
+  //   setInputs((prevState) => ({
+  //     ...prevState,
+  //     [input]: val,
+  //   }));
+  //   setErrors((prevState) => ({ ...prevState, [input]: "" }));
 
-  // Update duration based on the selected course
-  if (input === "course" && courseDurationData) {
-    const selectedCourseData = courseDurationData.find(
-      (courseData) => courseData.courseName === val
-    );
-    console.log("time",selectedCourseData)
-    if (selectedCourseData) {
-      setInputs((prevState) => ({
-        ...prevState,
-        duration: selectedCourseData.courseDuration,
-      }));
-    }
-  }
-};
+  //   if (input === "courseType") {
+  //     // setLoading(true);
+  //     try {
+  //       await dispatch(getCourseDurationType(val));
+  //       const courseDurationData = courseDurationType?.data;
+  //       console.log(courseDurationData);
+  //       if (courseDurationData && courseDurationData.length > 0) {
+  //         const courseOptions = courseDurationData.map((courseData) => ({
+  //           label: courseData.courseName,
+  //           value: courseData.courseName,
+  //         }));
+  //         setCourseOptions(courseOptions);
+  //         setCourseDurationData(courseDurationData);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching course duration type:", error);
+  //     }
+  //   }
 
+  //   // Update duration based on the selected course
+  //   if (input === "course" && courseDurationData) {
+  //     const selectedCourseData = courseDurationData.find(
+  //       (courseData) => courseData.courseName === val
+  //     );
+  //     console.log("time", selectedCourseData);
+  //     if (selectedCourseData) {
+  //       setInputs((prevState) => ({
+  //         ...prevState,
+  //         duration: selectedCourseData.courseDuration,
+  //       }));
+  //     }
+  //   }
+  // };
 
   const format = [
     { key: "1", value: "Percentage(%)" },
@@ -162,8 +164,19 @@ const AddQualification = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        await dispatch(getCourseType());
-        await dispatch(getInstitute());
+        const res = await dispatch(getCourseType());
+        setCourseType(res.data);
+        const res1 = await dispatch(getInstitute());
+        setUniversity(res1.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        const msg = error.response.data?.message;
+        Toast.show({
+          type: "error",
+          text1: msg || "An error occurred. Please try again.",
+          visibilityTime: 2000,
+          autoHide: true,
+        });
       } finally {
         setLoading(false);
       }
@@ -172,18 +185,78 @@ const AddQualification = () => {
     fetchData();
   }, [dispatch]);
 
-  useEffect(() => {
-    if (courseTypes && courseTypes.data) {
-      setCourseType(courseTypes.data);
-    }
-  }, [courseTypes]);
+  const courseData = {
+    "Certification Course": [
+      "Yoga for Wellness Instructor (CCYWI) [ Duration – 6 months]",
+      "Yoga Therapy Assistant (CCYTA) [Duration – one semester]",
+      "Yoga for Protocol Instructor (CCYPI) [Duration – 3 months]",
+      "Foundation Course [ Duration – 1 month (50hrs)]",
+      "Residential and Online Certificate Courses in Yoga [Duration – 200 hrs] (IYA)",
+      "Certificate Course in Yoga Science for Special Interest Group (CCYSIG) [Duration – 4 months]",
+      "100 Hour Yoga Teacher Training Course Contents",
+      "Yoga Nidra Teacher Training [ Duration – 30hrs]",
+      "Inner Engineering (Isha Foundation) [ Duration – 25 hrs]",
+      "Sadhana Pada [Duration – 7 months] (Isha Foundation)",
+      "Hatha Yoga Teacher Training [Duration – 5 months] (Isha Foundation)",
+      "Pranayama (Breath work) Teacher Training [ Duration – 50hrs] (Yoga Alliance)",
+      "Assistant Yoga Therapist (YCB) [Duration – 400 hrs]",
+      "Yoga Therapist (YCB) [Duration – 800 hrs]",
+      "Therapeutic Yoga Consultant (YCB) [Duration – 1600 hrs]",
+      "Yoga Volunteer (YCB)[Duration – not less than 36 hrs]",
+    ],
+    "1-Year Courses": [
+      "POST GRADUATE DIPLOMA IN YOGA THERAPY FOR MEDICOS AND PARAMEDICOS (PGDYTMP)",
+      "Diploma in Yoga Science (D.Y.Sc.) for Graduates",
+      "DIPLOMA IN YOGA THERAPY (DYT)",
+      "DIPLOMA IN SPORTS COACHING – YOGASANA (D.S.C) For Graduates (One –Year Duration & One Month Internship)",
+      "Diploma in Meditation",
+    ],
+    Graduation: ["Bachelors of Science in Yoga (Graduation) Duration – 3yrs"],
+    "Post Graduation": [
+      "Master of Science in Yoga (Post – Graduation) Duration -2yrs",
+    ],
+  };
 
 
-  useEffect(() => {
-    if (institutes && institutes.data) {
-      setUniversity(institutes.data);
-    }
-  }, [institutes]);
+  const institutes = [
+    { key: "1", value: "Morarji Desai National Institute of Yoga (Delhi)" },
+    { key: "2", value: "Parmarth Niketan Ashram (Uttrakhand)" },
+    { key: "3", value: "Phool Chatti Ashram (Uttrakhand)" },
+    { key: "4", value: "Yoga Niketan Ashram (Uttrakhand)" },
+    { key: "5", value: "The Yoga Institute (Maharashtra)" },
+    { key: "6", value: "Ramamani Iyengar Memorial Yoga Institute (Maharashtra)" },
+    { key: "7", value: "Shri Ambika Yoga Kutir (Maharashtra)" },
+    { key: "8", value: "Vivekananda Yoga Anusandhana Samsthana or VYASA (Karnataka)" },
+    { key: "9", value: "Ashtanga Yoga Research Institute (Karnataka)" },
+    { key: "10", value: "Krishnamacharya Yoga Mandiram (Tamil Nadu)" },
+    { key: "11", value: "Integral Yoga Institute (Tamil Nadu)" },
+    { key: "12", value: "Isha Yoga Center (Tamil Nadu)" },
+    { key: "13", value: "Sivananda Yoga Vedanta Dhanwantari Ashram (Kerala)" },
+    { key: "14", value: "Amritapuri Ashram (Kerala)" },
+    { key: "15", value: "Bihar School of Yoga (Bihar)" },
+    { key: "16", value: "Brahma Kumari Center (Rajasthan)" },
+    { key: "17", value: "Tourist Information Office (Assam)" },
+    { key: "18", value: "Department of Tourism (Pudduchery)" },
+    { key: "19", value: "Department of Health & Family Welfare (Odisha)" },
+    { key: "20", value: "Indian Institute of Yogic Science & Research (Odisha)" },
+    { key: "21", value: "Indian Systems of Medicine & Homeopathy (AYUSH) (Gujarat)" },
+    { key: "22", value: "Directorate General of Indian System of Medicine (Jammu & Kashmir)" },
+  ];
+  
+  // console.log(institutes);
+  
+
+  // useEffect(() => {
+  //   if (courseTypes && courseTypes.data) {
+  //     setCourseType(courseTypes.data);
+  //   }
+  // }, [courseTypes]);
+
+  // useEffect(() => {
+  //   if (institutes && institutes.data) {
+  //     setUniversity(institutes.data);
+  //   }
+  // }, [institutes]);
 
   const validate = async () => {
     try {
@@ -192,10 +265,10 @@ const AddQualification = () => {
         "courseType",
         "course",
         "university_institute_name",
-        // "duration",
+        "duration",
         "certificationNumber",
         "format",
-        "qualificationIn"
+        "qualificationIn",
       ];
 
       // Check if any field is empty
@@ -246,12 +319,13 @@ const AddQualification = () => {
       }
       image.forEach((file) => {
         formData.append("qualificationFile", {
-            uri: file.uri,
-            type: file.mimeType,
-            name: file.name,
+          uri: file.uri,
+          type: file.mimeType,
+          name: file.name,
         });
       });
 
+      console.log(formData);
       const res = await dispatch(addQualification(formData));
       console.log(res);
       if (res.success) {
@@ -263,12 +337,11 @@ const AddQualification = () => {
           visibilityTime: 2000,
           autoHide: true,
         });
-   
       }
     } catch (error) {
       console.error("Error during form submission:", error);
       // Show error message using Toast.show
-      const msg=error.response.data?.message;
+      const msg = error.response.data?.message;
       Toast.show({
         type: "error",
         text1: msg || "An error occurred. Please try again.",
@@ -278,6 +351,13 @@ const AddQualification = () => {
     } finally {
       setLoading1(false);
     }
+  };
+
+  const handleSelectChange = (value, fieldName) => {
+    setInputs(prevInputs => ({
+      ...prevInputs,
+      [fieldName]: value
+    }));
   };
 
   useEffect(() => {
@@ -299,7 +379,7 @@ const AddQualification = () => {
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header
           title={"Add Qualification"}
           icon={require("../../assets/back.png")}
@@ -309,81 +389,112 @@ const AddQualification = () => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
-      ) :
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20 }}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={styles.label}>
-            Course Type<Text style={{ color: "red" }}> *</Text>
-          </Text>
-          <SelectList
-            setSelected={(text) => handleSelectChange(text, "courseType")}
-            data={courseType.map((item) => ({
-              label: item.courseType,
-              value: item.courseType,
-            }))}
-            defaultOption={inputs.courseType}
-            save="value"
-            fontFamily="Poppins"
-            onFocus={() => handleError(null, "courseType")}
-          />
-          {errors.courseType && (
-            <Text style={styles.errorText}>{errors.courseType}</Text>
-          )}
-          {inputs.courseType && (
-            <View style={{ marginTop: 10 }}>
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20 }}
+        >
+          <View style={{ flex: 1 }}>
+            <View style={{ marginTop: 5 }}>
               <Text style={styles.label}>
-                Course<Text style={{ color: "red" }}> *</Text>
+                Add Qualification For<Text style={{ color: "red" }}> *</Text>
               </Text>
               <SelectList
-                setSelected={(text) => handleSelectChange(text, "course")}
-                data={courseOptions}
+                setSelected={(text) =>
+                  handleSelectChange(text, "qualificationIn")
+                }
+                data={qualificationItem}
+                defaultOption={inputs.qualificationIn}
                 save="value"
                 fontFamily="Poppins"
+                onFocus={() => handleError(null, "qualificationIn")}
               />
-              {errors.course && (
-                <Text style={styles.errorText}>{errors.course}</Text>
+            </View>
+            {errors.qualificationIn && (
+              <Text style={styles.errorText}>{errors.qualificationIn}</Text>
+            )}
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.label}>
+                Course Type<Text style={{ color: "red" }}> *</Text>
+              </Text>
+              <SelectList
+                setSelected={(text) => handleSelectChange(text, "courseType")}
+                data={Object.keys(courseData)}
+                defaultOption={inputs.courseType}
+                save="value"
+                fontFamily="Poppins"
+                onFocus={() => handleErrors(null, "courseType")}
+              />
+            </View>
+            {errors.courseType && (
+              <Text style={styles.errorText}>{errors.courseType}</Text>
+            )}
+            {inputs.courseType && (
+              <View style={{ marginTop: 10 }}>
+                <Text style={styles.label}>
+                  Course<Text style={{ color: "red" }}> *</Text>
+                </Text>
+                <SelectList
+                  setSelected={(text) => handleSelectChange(text, "course")}
+                  data={courseData[inputs.courseType].map((course, index) => ({
+                    label: course,
+                    value: course, // Use index as the value for SelectList
+                  }))}
+                  save="value"
+                  fontFamily="Poppins"
+                />
+                {errors.course && (
+                  <Text style={styles.errorText}>{errors.course}</Text>
+                )}
+              </View>
+            )}
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.label}>
+                University / Institutes<Text style={{ color: "red" }}> *</Text>
+              </Text>
+              {/* <SelectList
+                setSelected={(text) =>
+                  handleSelectChange(text, "university_institute_name")
+                }
+                data={university.map((item) => ({
+                  label: item.id,
+                  value: item.university_institute_name,
+                }))}
+                save="value"
+                fontFamily="Poppins"
+                onFocus={() => handleError(null, "university_institute_name")}
+              /> */}
+              <SelectList
+                setSelected={(text) =>
+                  handleSelectChange(text, "university_institute_name")
+                }
+                data={institutes}
+                save="value"
+                fontFamily="Poppins"
+                onFocus={() => handleError(null, "university_institute_name")}
+              />
+              {errors.university_institute_name && (
+                <Text style={styles.errorText}>
+                  {errors.university_institute_name}
+                </Text>
               )}
             </View>
-          )}
-          <View style={{ marginTop: 10 }}>
-            <Text style={styles.label}>
-              University / Institutes<Text style={{ color: "red" }}> *</Text>
-            </Text>
-            <SelectList
-              setSelected={(text) =>
-                handleSelectChange(text, "university_institute_name")
-              }
-              data={university.map((item) => ({
-                label: item.id,
-                value: item.university_institute_name,
-              }))}
-              save="value"
-              fontFamily="Poppins"
-              onFocus={() => handleError(null, "university_institute_name")}
-            />
-            {errors.university_institute_name && (
-              <Text style={styles.errorText}>
-                {errors.university_institute_name}
-              </Text>
-            )}
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <Input
-              value={inputs.duration}
-              editable={false}
-              label="Duration"
-              placeholder="Duration"
-              error={errors.duration}
-              // isRequired={true}
-            />
+            <View style={{ marginTop: 10 }}>
+              <Input
+                value={inputs.duration}
+                // editable={false}
+                onChangeText={(text) => handleOnchange(text, "duration")}
+                onFocus={() => handleError(null, "duration")}
+                label="Duration"
+                placeholder="Duration"
+                error={errors.duration}
+                isRequired={true}
+              />
 
-            {/* {errors.duration && (
+              {/* {errors.duration && (
               <Text style={styles.errorText}>{errors.duration}</Text>
             )} */}
-          </View>
-          <View style={{ marginTop: 10 }}>
+            </View>
+            {/* <View style={{ marginTop: 10 }}> */}
             <Input
               onChangeText={(text) =>
                 handleOnchange(text, "certificationNumber")
@@ -394,125 +505,109 @@ const AddQualification = () => {
               error={errors.certificationNumber}
               isRequired={true}
             />
-          </View>
+            {/* </View> */}
 
-          <Text style={styles.label}>
-            Format<Text style={{ color: "red" }}> *</Text>
-          </Text>
-          <SelectList
-            setSelected={(text) => {
-              handleSelectChange(text, "format");
-              setSelectedFormat(text);
-            }}
-            data={format}
-            save="value"
-            fontFamily="Poppins"
-            onFocus={() => handleError(null, "format")}
-          />
-          {errors.format && (
-            <Text style={styles.errorText}>{errors.format}</Text>
-          )}
-
-          {selectedFormat === "Percentage(%)" && (
-            <View style={{ marginTop: 10 }}>
-              <Input
-                onChangeText={(text) => handleOnchange(text, "percentage")}
-                onFocus={() => handleError(null, "percentage")}
-                label="Percentage"
-                placeholder="Percentage"
-                error={errors.percentage}
-                isRequired={true}
-              />
-            </View>
-          )}
-          {selectedFormat === "CGPA" && (
-            <View style={{ marginTop: 10 }}>
-              <Input
-                onChangeText={(text) => handleOnchange(text, "CGPA")}
-                onFocus={() => handleError(null, "CGPA")}
-                label="CGPA"
-                placeholder="CGPA"
-                error={errors.CGPA}
-                isRequired={true}
-              />
-            </View>
-          )}
-
-<View style={{marginTop:10}}>
-          <Text style={styles.label}>
-            Add Qualification For<Text style={{ color: "red" }}> *</Text>
-          </Text>
-          <SelectList
-            setSelected={(text) => handleSelectChange(text, "qualificationIn")}
-            data={qualificationItem}
-            defaultOption={inputs.qualificationIn}
-            save="value"
-            fontFamily="Poppins"
-            onFocus={() => handleError(null, "qualificationIn")}
-          />
-          </View>
-          {errors.qualificationIn && (
-            <Text style={styles.errorText}>{errors.qualificationIn}</Text>
-          )}
-
-          <View style={{ marginTop: 10 }}>
             <Text style={styles.label}>
-              Document Upload<Text style={{ color: "red" }}> *</Text>
+              Format<Text style={{ color: "red" }}> *</Text>
             </Text>
-            <View style={styles.cameraContainer}>
-              {selectedFile ? (
-                <TouchableOpacity activeOpacity={0.8} onPress={pickImage}>
-                  {selectedFile.type.includes("image") ? (
-                    <Image
-                      source={{ uri: selectedFile.uri }}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: 10,
-                      }}
-                    />
-                  ) : (
-                    <View style={styles.pdfContainer}>
+            <SelectList
+              setSelected={(text) => {
+                handleSelectChange(text, "format");
+                setSelectedFormat(text);
+              }}
+              data={format}
+              save="value"
+              fontFamily="Poppins"
+              onFocus={() => handleError(null, "format")}
+            />
+            {errors.format && (
+              <Text style={styles.errorText}>{errors.format}</Text>
+            )}
+
+            {selectedFormat === "Percentage(%)" && (
+              <View style={{ marginTop: 10 }}>
+                <Input
+                  onChangeText={(text) => handleOnchange(text, "percentage")}
+                  onFocus={() => handleError(null, "percentage")}
+                  label="Percentage"
+                  placeholder="Percentage"
+                  error={errors.percentage}
+                  isRequired={true}
+                />
+              </View>
+            )}
+            {selectedFormat === "CGPA" && (
+              <View style={{ marginTop: 10 }}>
+                <Input
+                  onChangeText={(text) => handleOnchange(text, "CGPA")}
+                  onFocus={() => handleError(null, "CGPA")}
+                  label="CGPA"
+                  placeholder="CGPA"
+                  error={errors.CGPA}
+                  isRequired={true}
+                />
+              </View>
+            )}
+
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.label}>
+                Document Upload<Text style={{ color: "red" }}> *</Text>
+              </Text>
+              <View style={styles.cameraContainer}>
+                {selectedFile ? (
+                  <TouchableOpacity activeOpacity={0.8} onPress={pickImage}>
+                    {selectedFile.type.includes("image") ? (
                       <Image
-                        source={require("../../assets/pdf.png")}
-                        style={styles.pdfIcon}
+                        source={{ uri: selectedFile.uri }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: 10,
+                        }}
                       />
-                      <Text style={styles.pdfText}>{selectedFile.name}</Text>
+                    ) : (
+                      <View style={styles.pdfContainer}>
+                        <Image
+                          source={require("../../assets/pdf.png")}
+                          style={styles.pdfIcon}
+                        />
+                        <Text style={styles.pdfText}>{selectedFile.name}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity activeOpacity={0.8} onPress={pickImage}>
+                    <View style={styles.cameraButton}>
+                      <Image
+                        style={styles.cameraImage}
+                        source={require("../../assets/camera.png")}
+                      />
+                      <Text style={styles.cameraText}>Add File</Text>
                     </View>
-                  )}
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity activeOpacity={0.8} onPress={pickImage}>
-                  <View style={styles.cameraButton}>
-                    <Image
-                      style={styles.cameraImage}
-                      source={require("../../assets/camera.png")}
-                    />
-                    <Text style={styles.cameraText}>Add File</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
+            {errors.document && (
+              <Text style={styles.errorText}>{errors.document}</Text>
+            )}
           </View>
-          {errors.document && (
-            <Text style={styles.errorText}>{errors.document}</Text>
-          )}
-        </View>
-        <Button
-          title={
-            loading1 ? (
-              <ActivityIndicator
-                size="small"
-                color="#ffffff"
-                style={styles.indicator}
-              />
-            ) : (
-              "Save"
-            )
-          }
-          onPress={validate}
-        />
-      </ScrollView>}
+          <Button
+            title={
+              loading1 ? (
+                <ActivityIndicator
+                  size="small"
+                  color="#ffffff"
+                  style={styles.indicator}
+                />
+              ) : (
+                "Save"
+              )
+            }
+            onPress={validate}
+          />
+        </ScrollView>
+      )}
     </View>
   );
 };

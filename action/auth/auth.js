@@ -8,6 +8,7 @@ import {
   UPDATE_INSTRUCTOR,
   UPDATE_TUTOR_TERM,
   UPDATE_THERAPIST_TERM,
+  UPDATE_YS_TERM
 } from "../../constants/actionTypes";
 
 export const register = (userInfo) => async (dispatch) => {
@@ -82,6 +83,18 @@ export const updateTherapistTerm = (termInfo) => async (dispatch) => {
   try {
     const response = await api.updateTherapistTerm(termInfo);
     dispatch({ type: UPDATE_THERAPIST_TERM, payload: response.data });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+
+export const updateYogaStudioTerm = (termInfo) => async (dispatch) => {
+  try {
+    const response = await api.updateYogaStudioTerm(termInfo);
+    dispatch({ type: UPDATE_YS_TERM, payload: response.data });
     return response.data;
   } catch (error) {
     console.log(error);

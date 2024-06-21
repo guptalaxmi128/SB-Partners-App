@@ -1,14 +1,31 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  BackHandler
 } from "react-native";
 import Header from "../header/Header";
 
 const Terms = ({ navigation }) => {
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
   return (
     <View style={styles.container}>
       <Header

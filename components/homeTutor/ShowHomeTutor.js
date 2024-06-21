@@ -285,7 +285,7 @@ const ShowHomeTutor = ({ navigation, route }) => {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" />
-            <View style={{ paddingTop: 15 }}>
+            <View style={{ paddingTop: 20 }}>
               <Header
                 title={"View Home Tutor"}
                 icon={require("../../assets/back.png")}
@@ -438,7 +438,9 @@ const ShowHomeTutor = ({ navigation, route }) => {
                           data={data.specilization}
                           renderItem={({ item }) => (
                             <View style={styles.timeSlotContainer}>
-                              <Text style={styles.specilizationText}>{item}</Text>
+                              <Text style={styles.specilizationText}>
+                                {item}
+                              </Text>
                             </View>
                           )}
                           numColumns={3}
@@ -467,29 +469,27 @@ const ShowHomeTutor = ({ navigation, route }) => {
                     <View>
                       <Text style={styles.headingText}>Session Offered</Text>
                       <View style={{ paddingVertical: 10 }}>
-                        <FlatList
-                          data={data.serviceOffered}
-                          renderItem={({ item }) => (
-                            <View style={styles.timeSlotContainer}>
-                              <Text style={styles.timeSlotText}>{item}</Text>
-                            </View>
-                          )}
-                          numColumns={3}
-                          keyExtractor={(item, index) => index.toString()}
-                          contentContainerStyle={styles.timeSlotList}
-                        />
+                        <View style={styles.timeSlotContainer}>
+                          <Text style={styles.timeSlotText}>
+                            {(data.isGroupSO ? "Group" : "") +
+                              (data.isGroupSO && data.isPrivateSO
+                                ? " & "
+                                : "") +
+                              (data.isPrivateSO ? "Individual" : "")}
+                          </Text>
+                        </View>
                         {data && data.privateSessionPrice_Day && (
                           <Text style={{ fontSize: 14, fontFamily: "Poppins" }}>
                             {" "}
-                            * Individual Class (Day) -{" "}
-                            ₹ {data.privateSessionPrice_Day}
+                            * Individual Class (Day) - ₹{" "}
+                            {data.privateSessionPrice_Day}
                           </Text>
                         )}
                         {data && data.privateSessionPrice_Month && (
                           <Text style={{ fontSize: 14, fontFamily: "Poppins" }}>
                             {" "}
-                            * Individual Class (Month) -{" "}
-                            ₹ {data.privateSessionPrice_Month}
+                            * Individual Class (Month) - ₹{" "}
+                            {data.privateSessionPrice_Month}
                           </Text>
                         )}
                         {data && data.groupSessionPrice_Day && (
@@ -501,8 +501,8 @@ const ShowHomeTutor = ({ navigation, route }) => {
                         {data && data.groupSessionPrice_Month && (
                           <Text style={{ fontSize: 14, fontFamily: "Poppins" }}>
                             {" "}
-                            * Group Class (Month) -{" "}
-                            ₹ {data.groupSessionPrice_Month}
+                            * Group Class (Month) - ₹{" "}
+                            {data.groupSessionPrice_Month}
                           </Text>
                         )}
                       </View>

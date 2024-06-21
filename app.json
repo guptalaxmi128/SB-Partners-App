@@ -15,7 +15,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+       "jsEngine": "hermes",
+       "config": {
+        "googleMapsApiKey": "AIzaSyBEgcdRIgr7znHQLhi3WKlJMIsjsoD5xnA"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +27,14 @@
         "backgroundColor": "#ffffff"
       },
       "versionCode":3,
-      "package": "com.swastibharat.partners"
+      "package": "com.swastibharat.partners",
+       "jsEngine": "hermes",
+       "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBEgcdRIgr7znHQLhi3WKlJMIsjsoD5xnA"
+        }
+      }
+
     },
     "web": {
       "favicon": "./assets/favicon.png"

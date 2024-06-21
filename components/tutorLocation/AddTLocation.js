@@ -10,6 +10,7 @@ import {
   ScrollView,
   Platform,
   ActivityIndicator,
+  BackHandler
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import MapView, { Marker, Circle } from "react-native-maps";
@@ -45,6 +46,23 @@ const AddTLocation = ({ navigation, route }) => {
   const [radius, setRadius] = useState(null);
   const [name, setName] = useState("");
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+
+  
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        navigation.goBack();
+        return true;
+      }
+      return false;
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
 
   const handleSelectDistance = (value) => {
     setRadius(value);

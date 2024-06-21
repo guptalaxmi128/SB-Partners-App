@@ -12,7 +12,12 @@ import {
   DELETE_STUDIO,
   DELETE_STUDIO_CONTACT,
   DELETE_STUDIO_IMAGE,
-  DELETE_STUDIO_TIME
+  DELETE_STUDIO_TIME,
+  PUBLISH_YOGA_STUDIO,
+  SUBMIT_YS_CONTACT,
+  SUBMIT_YS_IMAGE,
+  SUBMIT_YOGA_STUDIO,
+  SUBMIT_YS_TIME
 } from "../../constants/actionTypes";
 
 export const yogaStudio = (studio) => async (dispatch) => {
@@ -154,5 +159,62 @@ export const deleteStudioImage = (id) => async (dispatch) => {
     return response.data;
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const submitYogaStudio = (id) => async (dispatch) => {
+  try {
+    const response = await api.submitYogaStudio(id);
+    dispatch({ type: SUBMIT_YOGA_STUDIO, payload:response.data});
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+
+export const submitYogaStudioTime = (id) => async (dispatch) => {
+  try {
+    const response = await api.submitYogaStudioTime(id);
+    dispatch({ type: SUBMIT_YS_TIME, payload:response.data});
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const submitYogaStudioContact = (id) => async (dispatch) => {
+  try {
+    const response = await api.submitYogaStudioContact(id);
+    dispatch({ type: SUBMIT_YS_CONTACT, payload:response.data});
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+
+export const submitYogaStudioImage = (id) => async (dispatch) => {
+  try {
+    const response = await api.submitYogaStudioImage(id);
+    dispatch({ type: SUBMIT_YS_IMAGE, payload:response.data});
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const publishYogaStudio = (id) => async (dispatch) => {
+  try {
+    const response = await api.publishYogaStudio(id);
+    dispatch({ type: PUBLISH_YOGA_STUDIO, payload: response.data });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 };

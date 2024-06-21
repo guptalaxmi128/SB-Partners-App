@@ -23,6 +23,7 @@ import Button from "../button/Button";
 import {
   deleteStudioTime,
   getYogaStudioById,
+  submitYogaStudioTime,
   updateStudioStepSecond,
 } from "../../action/yogaStudio/yogaStudio";
 import { useDispatch } from "react-redux";
@@ -132,6 +133,49 @@ const EditTiming = ({ route,navigation }) => {
     }
   };
 
+  const showSubmitAlert = (id) => {
+    Alert.alert(
+      "Send For Approval",
+      "Are you sure you want to send this time slot for approval?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Send",
+          onPress: () => handleApproval(id),
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const handleApproval = async (id) => {
+    console.log(id);
+    try {
+      const res = await dispatch(submitYogaStudioTime(id));
+      console.log(res);
+      if (res.success) {
+        Toast.show({
+          type: "success",
+          text1: res.message,
+          visibilityTime: 2000,
+          autoHide: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      const msg = error.response.data.message;
+      Toast.show({
+        type: "error",
+        text1: msg || "An error occurred. Please try again.",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+    }
+  };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setSubmitting(true);
@@ -266,12 +310,22 @@ const EditTiming = ({ route,navigation }) => {
                           <Text
                             style={{
                               fontFamily: "Poppins",
-                              fontSize: hp(2.5),
+                              fontSize: hp(2),
                               marginTop: 10,
                             }}
                           >
                             Select Days of The Week for Slot {index + 1}
                           </Text>
+                         <View style={{flexDirection:'row'}}>
+                          <TouchableOpacity
+                          style={{marginTop:10,marginRight:8}}
+                          onPress={() => showSubmitAlert(slot.id)}
+                          >
+                            <Image
+                              source={require("../../assets/timeApprove.png")}
+                              style={{width:22,height:22}}
+                            />
+                          </TouchableOpacity>
                           <TouchableOpacity
                           style={{marginTop:10}}
                           onPress={() => showAlert(slot.id)}
@@ -281,6 +335,7 @@ const EditTiming = ({ route,navigation }) => {
                               style={styles.editImg}
                             />
                           </TouchableOpacity>
+                          </View>
                           </View>
                           <View style={styles.daycontainer}>
                             {daysOfWeek.map((day) => (
@@ -509,7 +564,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   dayText: {
-    fontSize: hp(2),
+    fontSize: hp(1.9),
     color: "#dcdcdc",
     fontFamily: "Poppins",
   },

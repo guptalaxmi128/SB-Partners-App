@@ -9,6 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
   FlatList,
+  BackHandler
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -27,7 +28,7 @@ import QuickInformation from "./QuickInformation";
 export const SLIDER_WIDTH = Dimensions.get("window").width + 30;
 export const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 1);
 
-const ParticularStudio = ({ route }) => {
+const ParticularStudio = ({ route,navigation }) => {
   const { id } = route.params;
   const [index, setIndex] = useState(0);
   const [data, setData] = useState("");
@@ -39,6 +40,23 @@ const ParticularStudio = ({ route }) => {
   const onSelectSwitch = (value) => {
     setCourseTab(value);
   };
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,9 +78,31 @@ const ParticularStudio = ({ route }) => {
 
   // console.log("particular",id)
 
-
+  const bannerItem = [
+    { id: 1, image: require("../../assets/get-screen/tutor1.jpg") },
+    { id: 2, image: require("../../assets/get-screen/tutor2.webp") },
+    { id: 3, image: require("../../assets/get-screen/tutor3.jpg") },
+  ];
 
   const renderItem = useMemo(
+    () =>
+      ({ item }) =>
+        (
+          <View
+            style={{
+              width: "100%",
+              height: 230,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Image source={ item.image} style={styles.headerImage} />
+          </View>
+        ),
+    []
+  );
+
+  const renderApiItem = useMemo(
     () =>
       ({ item }) =>
         (
@@ -80,6 +120,9 @@ const ParticularStudio = ({ route }) => {
     []
   );
 
+
+  const imagesToDisplay = banner.length > 0 ? banner : bannerItem;
+
   return (
     <>
       {loading ? (
@@ -91,8 +134,10 @@ const ParticularStudio = ({ route }) => {
           <View style={{ backgroundColor: "#fff", overflow: "hidden" }}>
             <Carousel
               ref={isCarousel}
-              data={banner}
-              renderItem={renderItem}
+              data={imagesToDisplay}
+                    renderItem={
+                      banner.length > 0 ? renderApiItem : renderItem
+                    }
               sliderWidth={SLIDER_WIDTH}
               itemWidth={ITEM_WIDTH}
               onSnapToItem={(index) => setIndex(index)}

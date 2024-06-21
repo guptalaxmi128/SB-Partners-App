@@ -9,7 +9,7 @@ import {
   Image,
   StatusBar,
   ActivityIndicator,
-  BackHandler
+  BackHandler,
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -36,10 +36,11 @@ const EditBusinessProfile = ({ navigation, route }) => {
         const res = await dispatch(getYogaStudioById(id));
         console.log(res.data);
         setSelectedBusiness(res.data);
-        setMobileNumber(res.data.contacts.mobileNumber[0]);
         setAddress(
           `${res.data.block_building}, ${res.data.street_colony}, ${res.data.pincode}`
         );
+        setMobileNumber(res.data.contacts.mobileNumber[0]);
+       
         setTiming(res.data.timings[0].openAt);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -50,6 +51,7 @@ const EditBusinessProfile = ({ navigation, route }) => {
 
     fetchData();
   }, [dispatch, id]);
+  console.log(address)
 
   useEffect(() => {
     const handleBackPress = () => {
@@ -75,9 +77,24 @@ const EditBusinessProfile = ({ navigation, route }) => {
     {
       id: 2,
       title: "Contact Details",
-      description: `+91 ${mobileNumber}`,
+      description: mobileNumber ? (
+        `+91 ${mobileNumber}`
+      ) : (
+        <View
+          style={{
+            backgroundColor: "rgba(254, 243, 242, 1)",
+            padding: 5,
+            borderRadius: 5,
+          }}
+        >
+          <Text style={{ color: "red", fontFamily: "Poppins", fontSize: 12 }}>
+            Add Contact
+          </Text>
+        </View>
+      ),
       icon: require("../../assets/profile-icon/note.png"),
-      navigateTo:"EditContactDetails",
+      navigateTo: "EditContactDetails",
+      navigateTo: mobileNumber ? "EditContactDetails" : "AddBusinessContact",
     },
     {
       id: 3,
@@ -89,9 +106,21 @@ const EditBusinessProfile = ({ navigation, route }) => {
     {
       id: 4,
       title: "Business Timings",
-      description: `Open at ${timing}`,
+      description: timing ? `Open at ${timing}` :  (
+        <View
+          style={{
+            backgroundColor: "rgba(254, 243, 242, 1)",
+            padding: 5,
+            borderRadius: 5,
+          }}
+        >
+          <Text style={{ color: "red", fontFamily: "Poppins", fontSize: 12 }}>
+            Add Business Timings
+          </Text>
+        </View>
+      ),
       icon: require("../../assets/profile-icon/note.png"),
-      navigateTo: "EditTiming",
+      navigateTo: timing ? "EditTiming" : "BusinessTiming",
     },
     {
       id: 5,

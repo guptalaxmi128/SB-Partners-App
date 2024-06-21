@@ -53,20 +53,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "500",
-    fontFamily:'Poppins',
+    fontFamily:'PoppinsSemiBold',
     width: 190,
   },
   btnContainer: {
-    width: 100,
-    height: 40,
+    width: 90,
+    height: 35,
     borderRadius: 10,
-    backgroundColor: "rgba(107, 78, 255, 1)",
+    backgroundColor: "#5F33E1",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
+    marginHorizontal:27
   },
   btn: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily:'Poppins',
     fontWeight: "600",
     color: "#fff",
   },

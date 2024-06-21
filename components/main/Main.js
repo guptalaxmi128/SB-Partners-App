@@ -66,6 +66,10 @@ import TherapistLocation from "../therapist/TherapistLocation";
 import TherapistTimeSlot from "../therapist/TherapistTimeSlot";
 import TherapistPhoto from "../therapist/TherapistPhoto";
 import AddTherapy from "../therapist/AddTherapy";
+import FirstYogaStudioScreen from "../yogaStudio/FirstYogaStudioScreen";
+import ComingSoonStudio from "../yogaStudio/ComingSoonStudio";
+import ComingSoonTherapist from "../therapist/ComingSoonTherapist";
+import ComingSoonInfluencer from "../influencer/ComingSoonInfluencer";
 // import TestStepSecond from "../yogaStudio/TestStepSecond";
 
 const Stack = createNativeStackNavigator();
@@ -465,6 +469,26 @@ const AppStack = () => {
       <Stack.Screen
         name="AddTherapy"
         component={AddTherapy}
+        options={{ headerShown: false }}
+      />
+        <Stack.Screen
+        name="FirstYogaStudioScreen"
+        component={FirstYogaStudioScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ComingSoonStudio"
+        component={ComingSoonStudio}
+        options={{ headerShown: false }}
+      />
+        <Stack.Screen
+        name="ComingSoonTherapist"
+        component={ComingSoonTherapist}
+        options={{ headerShown: false }}
+      />
+          <Stack.Screen
+        name="ComingSoonInfluencer"
+        component={ComingSoonInfluencer}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

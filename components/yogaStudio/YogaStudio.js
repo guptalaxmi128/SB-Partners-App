@@ -60,6 +60,8 @@ const YogaStudio = ({ route, navigation }) => {
     );
   };
 
+  
+
   const validate = async () => {
     let isValid = true;
     const requiredFields = [

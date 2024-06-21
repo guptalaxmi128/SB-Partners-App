@@ -176,7 +176,7 @@ import { useNavigation } from "@react-navigation/native";
 import Button from "../button/Button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CountDown from "react-native-countdown-component";
-import { verifyOtp } from "../../action/auth/auth";
+import { verifyOtp,login } from "../../action/auth/auth";
 
 const VerifyOtp = ({ route }) => {
   const dispatch=useDispatch();
@@ -235,7 +235,7 @@ const VerifyOtp = ({ route }) => {
         console.error("Error occurred while verifying OTP:", error);
         setError(true); // Set error state
         // Show toast message for error
-        ToastAndroid.show("Error occurred while verifying OTP", ToastAndroid.SHORT);
+        ToastAndroid.show(error.response?.data.message, ToastAndroid.SHORT);
       } finally {
         setLoading(false);
       }
@@ -244,22 +244,25 @@ const VerifyOtp = ({ route }) => {
 
   const handleResend = async () => {
     setError(false); // Reset error state
-    // try {
-    //   // Verify OTP
-    //   const res = await loginUser({ mobileNumber });
-    //   console.log(res);
+    try {
+      // Verify OTP
+      const formData = {  phoneNumber: mobileNumber };
+      const res = await dispatch(login(formData));
+      console.log(res);
 
-    //   // Show toast message
-    //   if (res && res.data && res.data.success) {
-    //     ToastAndroid.show("OTP Resent Successfully!", ToastAndroid.SHORT);
-    //     setShowTimer(true);
-    //   }
-    // } catch (error) {
-    //   console.error("Error occurred while resending OTP:", error);
-    //   setError(true); // Set error state
-    //   // Show toast message for error
-    //   ToastAndroid.show("Error occurred while resending OTP", ToastAndroid.SHORT);
-    // }
+      // Show toast message
+      if (res && res.success) {
+        ToastAndroid.show("OTP Resent Successfully!", ToastAndroid.SHORT);
+        setRemainingTime(60); // Reset the countdown time
+        setShowTimer(true);
+        console.log('Setting showTimer to true');
+      }
+    } catch (error) {
+      console.error("Error occurred while resending OTP:", error);
+      setError(true); // Set error state
+      // Show toast message for error
+      ToastAndroid.show("Error occurred while resending OTP", ToastAndroid.SHORT);
+    }
   };
 
   useEffect(() => {
@@ -280,8 +283,8 @@ const VerifyOtp = ({ route }) => {
       <View style={{ marginLeft: 20, paddingTop: 50 }}>
         <Text style={styles.headerText}>Send OTP Code</Text>
         <Text style={styles.subHeaderText}>
-          Enter the 6-digit that we have sent via the phone number to  
-          <Text style={{marginLeft:4}} >{mobileNumber}</Text>
+          Enter the 6-digit that we have sent via the phone number to&nbsp; 
+          {mobileNumber}
         </Text>
       </View>
 
@@ -308,13 +311,14 @@ const VerifyOtp = ({ route }) => {
         </View>
       </View>
 
-      <View
+      <TouchableOpacity
         style={{
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "center",
           marginTop: 230,
         }}
+        onPress={handleResend}
       >
         <Text style={styles.resendText}>Resend Code</Text>
         {showTimer && (
@@ -333,7 +337,7 @@ const VerifyOtp = ({ route }) => {
             showSeparator
           />
         )}
-      </View>
+      </TouchableOpacity>
 
       <View style={{ marginBottom: 10, paddingHorizontal: 20 }}>
       <Button

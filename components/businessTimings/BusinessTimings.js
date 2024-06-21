@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Text,
   View,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   StatusBar,
+  BackHandler
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -56,6 +57,22 @@ const BusinessTimings = ({ route, navigation }) => {
     ),
   });
 
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
   const transformTimeSlots = (timeSlots) => {
     return timeSlots.map((slot) => {
       const daysMap = {
@@ -143,7 +160,7 @@ const BusinessTimings = ({ route, navigation }) => {
       <StatusBar translucent backgroundColor="transparent" />
       <View style={{ paddingTop: 15 }}>
         <Header
-          title={"Add New Business Timings"}
+          title={"Business Timings"}
           icon={require("../../assets/back.png")}
         />
       </View>

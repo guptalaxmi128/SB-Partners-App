@@ -6,8 +6,13 @@ import {
   Image,
   TouchableOpacity,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
+  BackHandler
 } from "react-native";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import CustomHeader from "../CustomHeader/CustomHeader";
 import { useDispatch } from "react-redux";
 import { getInstructor } from "../../action/auth/auth";
@@ -33,6 +38,23 @@ const Qualification = ({ navigation }) => {
   const handleQualificationPress = (qualificationId) => {
     navigation.navigate("QualificationDetails", { id: qualificationId });
   };
+  
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.isFocused()) {
+        // Check if the current screen is focused
+        navigation.goBack(); // Go back if the current screen is focused
+        return true; // Prevent default behavior (exiting the app)
+      }
+      return false; // If not focused, allow default behavior (exit the app)
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigation]);
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -120,8 +142,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 20,
     marginVertical: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     backgroundColor: "#fff",
     elevation: 5,
     borderRadius: 10,
@@ -129,11 +151,11 @@ const styles = StyleSheet.create({
 
   rightContainer: {
     flex: 1,
-    padding: 20,
+    // padding: 10,
   },
 
   historyText: {
-    fontSize: 18,
+    fontSize: 14,
     fontFamily: "Poppins",
   },
   dateTimeContainer: {

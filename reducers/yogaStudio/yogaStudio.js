@@ -12,6 +12,11 @@ import {
   DELETE_STUDIO_IMAGE,
   DELETE_STUDIO_CONTACT,
   DELETE_STUDIO_TIME,
+  SUBMIT_YOGA_STUDIO,
+  SUBMIT_YS_CONTACT,
+  SUBMIT_YS_IMAGE,
+  SUBMIT_YS_TIME,
+  PUBLISH_YOGA_STUDIO,
 } from "../../constants/actionTypes";
 
 const initialState = {
@@ -60,6 +65,11 @@ export const yogaStudioReducer = (state = initialState, action) => {
     case UPDATE_YOGA_STUDIO:
     case UPDATE_STUDIO_STEP_FIRST:
     case UPDATE_STUDIO_STEP_SECOND:
+    case SUBMIT_YOGA_STUDIO:
+    case SUBMIT_YS_CONTACT:
+    case SUBMIT_YS_IMAGE:
+    case SUBMIT_YS_TIME:
+    case PUBLISH_YOGA_STUDIO:
       return {
         ...state,
         success: action.payload,

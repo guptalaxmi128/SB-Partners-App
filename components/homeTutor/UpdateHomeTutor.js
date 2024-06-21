@@ -460,7 +460,7 @@ const {id}=route.params;
       style={styles.container}
     >
       <StatusBar translucent backgroundColor="transparent" />
-      <View style={{ paddingTop: 15 }}>
+      <View style={{ paddingTop: 20 }}>
         <Header title={"Edit Home Tutor"} icon={require("../../assets/back.png")} />
       </View>
       {loading || loading1 ? (
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   progressBarActive: {
-    backgroundColor: "rgba(102, 42, 178, 1)",
+    backgroundColor: "#5F33E1",
   },
   loadingContainer: {
     flex: 1,
